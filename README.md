@@ -33,11 +33,11 @@ Resolución:
 
 Para resolver este ejercicio creamos dos objetos TreborElGuardiaDeSkyrim y CarolinaLaCuranderaDeSkyrim. Ambos son objetos muy parecidos ya que los mismos interactuan con gente de distintas formas segun la cantidad de interacciones y la reputación que tengan estas personas en el pueblo (Riverwood).
 
-Para poder controlar la reputación, creamos un tercer objeto llamado PuebloDeRiverwood el cuál contiene un diccionario que almacena los nombres de los personajes jugador, justo al estátus que maneja actualmente.
+Para poder controlar la reputación, creamos un tercer objeto llamado PuebloDeRiverwood el cuál contiene un diccionario que almacena los nombres de los personajes jugador, junto al estátus que maneja actualmente.
 
 Además le agregamos los pensajes para verificar el estátus y cambiarlo (tanto para bien como para mal) dentro de este objeto.
 
-Luego, Carolina y Trebo (respectivamente) tiene, al igual que el Pueblo, un diccionaro con el que almacenan la cantidad de interaccione que tienen con cada individuo, de manera que antes de enviar una respuesta, corroboran el status del personaje jugador, y la cantidad de veces que este interactuó con tanto Trebor como Carolina.
+Luego, Carolina y Trebor (respectivamente) tienen, al igual que el Pueblo, un diccionaro con el que almacenan la cantidad de interacciones que tienen con cada individuo, de manera que antes de enviar una respuesta, corroboran el status del personaje jugador, y la cantidad de veces que este interactuó con tanto Trebor como Carolina.
 
 Por último, Carolina tiene un mensaje que puede enviar al PuebloDeRiverwood cuando esta termina un hilo, para cambiar la opinión sobre el personaje jugador a positiva, haciendo que también tanto ella como Trebor olviden la cantidad de interacciones con ese personaje jugador en particular.
 
