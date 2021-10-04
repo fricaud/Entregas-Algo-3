@@ -35,7 +35,7 @@ Para resolver este ejercicio creamos dos objetos TreborElGuardiaDeSkyrim y Carol
 
 Para poder controlar la reputación, creamos un tercer objeto llamado PuebloDeRiverwood el cuál contiene un diccionario que almacena los nombres de los personajes jugador, junto al estátus que maneja actualmente.
 
-Además le agregamos los pensajes para verificar el estátus y cambiarlo (tanto para bien como para mal) dentro de este objeto.
+Además le agregamos los mensajes para verificar el estátus y cambiarlo (tanto para bien como para mal) dentro de este objeto.
 
 Luego, Carolina y Trebor (respectivamente) tienen, al igual que el Pueblo, un diccionaro con el que almacenan la cantidad de interacciones que tienen con cada individuo, de manera que antes de enviar una respuesta, corroboran el status del personaje jugador, y la cantidad de veces que este interactuó con tanto Trebor como Carolina.
 
