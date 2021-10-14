@@ -138,7 +138,7 @@ test08CanNotSuspendAnAlreadySuspendedCustomer
 ! !
 
 
-!CustomerBookTest methodsFor: 'CodigosRepetidos' stamp: 'JML 10/11/2021 18:04:22'!
+!CustomerBookTest methodsFor: 'algoritmosParaEliminarCodigoRepetido' stamp: 'JML 10/11/2021 18:04:22'!
 AssertsSobreClientesSuspendidosDe: libroDeClientes activos: clientesActivosEsperados suspendidos: clientesSuspendidosEsperados totales: clientesTotalesEsperados 
 
 	self assert: clientesActivosEsperados equals: libroDeClientes numberOfActiveCustomers.
@@ -146,14 +146,14 @@ AssertsSobreClientesSuspendidosDe: libroDeClientes activos: clientesActivosEsper
 	self assert:  clientesTotalesEsperados equals: libroDeClientes numberOfCustomers.
 ! !
 
-!CustomerBookTest methodsFor: 'CodigosRepetidos' stamp: 'JML 10/11/2021 18:05:48'!
+!CustomerBookTest methodsFor: 'algoritmosParaEliminarCodigoRepetido' stamp: 'JML 10/11/2021 18:05:48'!
 agregarYSuspenderDe: libroDeClientes A: nombreDeCliente
 	
 	libroDeClientes addCustomerNamed: nombreDeCliente.
 
 	libroDeClientes suspendCustomerNamed: nombreDeCliente.! !
 
-!CustomerBookTest methodsFor: 'CodigosRepetidos' stamp: 'JML 10/11/2021 16:16:33'!
+!CustomerBookTest methodsFor: 'algoritmosParaEliminarCodigoRepetido' stamp: 'JML 10/11/2021 16:16:33'!
 calcularTiempoDeOperacion: operacionConLibro
 
 	|millisecondsBeforeRunning millisecondsAfterRunning tiempoDeOperacion|
@@ -166,13 +166,13 @@ calcularTiempoDeOperacion: operacionConLibro
 	
 	^tiempoDeOperacion.! !
 
-!CustomerBookTest methodsFor: 'CodigosRepetidos' stamp: 'JML 10/11/2021 18:05:21'!
+!CustomerBookTest methodsFor: 'algoritmosParaEliminarCodigoRepetido' stamp: 'JML 10/11/2021 18:05:21'!
 crearInstanciaEInicializarConCliente: nombreDeCliente
 	^CustomerBook new addCustomerNamed: nombreDeCliente.
 
 	! !
 
-!CustomerBookTest methodsFor: 'CodigosRepetidos' stamp: 'JML 10/11/2021 18:01:54'!
+!CustomerBookTest methodsFor: 'algoritmosParaEliminarCodigoRepetido' stamp: 'JML 10/11/2021 18:01:54'!
 obsoletoverificacionDeErroresDeOperacion: operacionQueFalla errorResultante: nombreDeError bloquesDeVerificacion: testsAVerificar
 	
 	[operacionQueFalla.
@@ -183,12 +183,12 @@ obsoletoverificacionDeErroresDeOperacion: operacionQueFalla errorResultante: nom
 	
 ! !
 
-!CustomerBookTest methodsFor: 'CodigosRepetidos' stamp: 'JML 10/10/2021 20:11:41'!
+!CustomerBookTest methodsFor: 'algoritmosParaEliminarCodigoRepetido' stamp: 'JML 10/10/2021 20:11:41'!
 obtenerTiempoActualEnMilisegundos
 	^Time millisecondClockValue * millisecond.
 ! !
 
-!CustomerBookTest methodsFor: 'CodigosRepetidos' stamp: 'JML 10/11/2021 18:32:17'!
+!CustomerBookTest methodsFor: 'algoritmosParaEliminarCodigoRepetido' stamp: 'JML 10/11/2021 18:32:17'!
 verificarQueElTiempoDeOperacion: operacionConLibro seaMenorA: milisegundos
 
 	|millisecondsBeforeRunning millisecondsAfterRunning tiempoDeOperacion|
@@ -201,7 +201,7 @@ verificarQueElTiempoDeOperacion: operacionConLibro seaMenorA: milisegundos
 	
 	self assert: ( tiempoDeOperacion) < (milisegundos * millisecond).! !
 
-!CustomerBookTest methodsFor: 'CodigosRepetidos' stamp: 'JML 10/11/2021 18:03:12'!
+!CustomerBookTest methodsFor: 'algoritmosParaEliminarCodigoRepetido' stamp: 'JML 10/11/2021 18:03:12'!
 verificarSiEnElLibro: libroDeClientes alSuspenderA: nombreDelSuspendido noSeBorreA: clienteYaIncluido
 	
 	[ libroDeClientes suspendCustomerNamed: nombreDelSuspendido.
@@ -291,7 +291,7 @@ signalCustomerNameCannotBeEmpty
 	self error: self class customerCanNotBeEmptyErrorMessage ! !
 
 
-!CustomerBook methodsFor: 'codigoRepetido' stamp: 'JML 10/11/2021 19:03:57'!
+!CustomerBook methodsFor: 'algoritmosParaEliminarCodigoRepetido' stamp: 'JML 10/11/2021 19:03:57'!
 eliminarDe: coleccionARecorrer a: aName
 	 
 	1 to: coleccionARecorrer size do: 
