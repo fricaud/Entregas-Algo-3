@@ -172,17 +172,6 @@ crearInstanciaEInicializarConCliente: nombreDeCliente
 
 	! !
 
-!CustomerBookTest methodsFor: 'algoritmosParaEliminarCodigoRepetido' stamp: 'JML 10/11/2021 18:01:54'!
-obsoletoverificacionDeErroresDeOperacion: operacionQueFalla errorResultante: nombreDeError bloquesDeVerificacion: testsAVerificar
-	
-	[operacionQueFalla.
-	self fail]
-		on: nombreDeError
-		do: [:anError |
-			testsAVerificar].
-	
-! !
-
 !CustomerBookTest methodsFor: 'algoritmosParaEliminarCodigoRepetido' stamp: 'JML 10/10/2021 20:11:41'!
 obtenerTiempoActualEnMilisegundos
 	^Time millisecondClockValue * millisecond.
