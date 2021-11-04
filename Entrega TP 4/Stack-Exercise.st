@@ -163,22 +163,31 @@ nuevoStack push: 'Estalalalala tiene que aparecer a pesar de lalalalalalalala'.
 prefix := 'esta'.!
 
 
-!SentenceFinderByPrefixTest methodsFor: 'setup' stamp: 'FR 11/3/2021 03:53:59'!
+!SentenceFinderByPrefixTest methodsFor: 'setup' stamp: 'FR 11/3/2021 20:36:00'!
+CrearStackPrueba
+
+|StackNuevo|
+
+StackNuevo := OOStack new.
+
+StackNuevo push: 'Esta va a ser la primer frase'.
+
+StackNuevo push: 'esta va a ser la segunda frase'.
+
+StackNuevo push: 'estas frases son mas'.
+
+StackNuevo push: 'Esta tiene que aparecer'.
+
+StackNuevo push: 'Estas tiene que aparecer a pesar de la S extra'.
+
+StackNuevo push: 'Estalalalala tiene que aparecer a pesar de lalalalalalalala'.
+
+^StackNuevo! !
+
+!SentenceFinderByPrefixTest methodsFor: 'setup' stamp: 'FR 11/3/2021 20:34:29'!
 setUp
 
-Stack := OOStack new.
-
-Stack push: 'Esta va a ser la primer frase'.
-
-Stack push: 'esta va a ser la segunda frase'.
-
-Stack push: 'estas frases son mas'.
-
-Stack push: 'Esta tiene que aparecer'.
-
-Stack push: 'Estas tiene que aparecer a pesar de la S extra'.
-
-Stack push: 'Estalalalala tiene que aparecer a pesar de lalalalalalalala'.
+Stack := self CrearStackPrueba.
 
 sentenceFinder := SentenceFinderByPrefix new.
 
@@ -209,16 +218,42 @@ test03SeDevuelvenTodasLasFrasesCorrespondientes
 	
 	self assert: (	sentenceFinder find: prefix in: Stack) equals: resultadoCorrecto! !
 
-!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'FR 11/3/2021 03:53:59'!
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'FR 11/3/2021 20:37:18'!
 test04ElStackQuedaIgualDespuesDeBuscar
 	
 	| stackOriginal |
 	
-	stackOriginal := Stack.
+	stackOriginal := self CrearStackPrueba.
 	
 	sentenceFinder find: prefix in: Stack.
+		
+	1 to: Stack size do: [:x | self assert: Stack top = stackOriginal top.
+	Stack pop.
+	stackOriginal pop.]! !
+
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'FR 11/3/2021 22:22:08'!
+test05ElPrefijoNoPuedeContenerEspacios
 	
-	self assert: Stack equals: stackOriginal.! !
+	self 
+		should: [sentenceFinder  find: 'Esta ' in: Stack ]
+		raise: Error
+		withExceptionDo: [ :anError | self assert: anError messageText equals: SentenceFinderByPrefix PrefixCantBeNilOrContainSpaces]! !
+
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'FR 11/3/2021 22:22:12'!
+test06ElPrefijoNoPuedeSerNil
+	
+	self 
+		should: [sentenceFinder find: nil in: Stack ]
+		raise: Error
+		withExceptionDo: [ :anError | self assert: anError messageText equals: SentenceFinderByPrefix PrefixCantBeNilOrContainSpaces]! !
+
+!SentenceFinderByPrefixTest methodsFor: 'tests' stamp: 'FR 11/3/2021 22:22:17'!
+test07ElPrefijoNoPuedeEstarVacío
+	
+	self 
+		should: [sentenceFinder find: '' in: Stack ]
+		raise: Error
+		withExceptionDo: [ :anError | self assert: anError messageText equals: SentenceFinderByPrefix PrefixCantBeNilOrContainSpaces]! !
 
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!
@@ -228,10 +263,10 @@ Object subclass: #OOStack
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'FR 11/2/2021 20:21:32'!
-changeTopTo: anObject
+!OOStack methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:24:25'!
+changeTopTo: aContainer
 
-	top := anObject! !
+	top := aContainer! !
 
 !OOStack methodsFor: 'as yet unclassified' stamp: 'FR 11/2/2021 20:24:55'!
 initialize
@@ -243,10 +278,10 @@ isEmpty
 
 	^top isEmpty! !
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'FR 11/2/2021 13:54:44'!
+!OOStack methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:32:52'!
 pop
 
-	^top removeLastContainerFrom: self.! !
+	^top removeTopContainerFrom: self.! !
 
 !OOStack methodsFor: 'as yet unclassified' stamp: 'FR 11/2/2021 13:54:49'!
 push: anObject
@@ -258,10 +293,10 @@ size
 
 	^top sizeCounter: 0.! !
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'FR 11/2/2021 13:54:59'!
+!OOStack methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:29:16'!
 top
 
-	^top content! !
+	^top getContent! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -282,16 +317,32 @@ Object subclass: #SentenceFinderByPrefix
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 03:39:46'!
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:21:42'!
 find: aPrefix in: aStack
 	
 	|result|
+	
 	result := OrderedCollection new.
+	
+	(aPrefix isKindOf: String) ifFalse: [^self error: SentenceFinderByPrefix PrefixCantBeNilOrContainSpaces].
+	
+	(aPrefix isEmpty) | (aPrefix includesSubString:  ' ') ifTrue: [^self error: SentenceFinderByPrefix PrefixCantBeNilOrContainSpaces].
 	
 	1 to: (aStack size) do: [:x | result addFirst: aStack pop].
 	1 to: (result size) do: [:position | aStack push: (result at: position)].	
 	
 	^result select: [:aString | aString beginsWith: aPrefix].! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'SentenceFinderByPrefix class' category: 'Stack-Exercise'!
+SentenceFinderByPrefix class
+	instanceVariableNames: ''!
+
+!SentenceFinderByPrefix class methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:21:42'!
+PrefixCantBeNilOrContainSpaces
+
+	^'The prefix cannot be nill nor contain spaces'.! !
 
 
 !classDefinition: #StackContainer category: 'Stack-Exercise'!
@@ -306,8 +357,8 @@ addContainerWith: anObject to: aStack
 
 	^self subclassResponsibility.! !
 
-!StackContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/2/2021 13:50:53'!
-content
+!StackContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:29:16'!
+getContent
 
 	^self subclassResponsibility.! !
 
@@ -321,10 +372,14 @@ isEmpty
 
 	^self subclassResponsibility! !
 
-!StackContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/2/2021 13:50:47'!
-removeLastContainerFrom: aStack
+!StackContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:32:51'!
+removeTopContainerFrom: aStack
 
 	^self subclassResponsibility ! !
+
+!StackContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:49:50'!
+sizeCounter: aStackSize
+	^self subclassResponsibility.! !
 
 
 !classDefinition: #FilledContainer category: 'Stack-Exercise'!
@@ -334,13 +389,13 @@ StackContainer subclass: #FilledContainer
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!FilledContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/2/2021 21:41:14'!
+!FilledContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:47:18'!
 addContainerWith: anObject to: aStack
 
-	aStack changeTopTo: (FilledContainer new initializeWith: anObject and: self).! !
+	aStack changeTopTo: (FilledContainer with: anObject and: self).! !
 
-!FilledContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/2/2021 21:33:28'!
-content
+!FilledContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:29:16'!
+getContent
 
 	^content! !
 
@@ -355,17 +410,28 @@ isEmpty
 
 	^false! !
 
-!FilledContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/2/2021 21:36:37'!
-removeLastContainerFrom: aStack
+!FilledContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:32:51'!
+removeTopContainerFrom: aStack
 
 	aStack changeTopTo: previousContainer.
 	
 	^content.! !
 
-!FilledContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/2/2021 21:35:15'!
-sizeCounter: stackSize
+!FilledContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:39:02'!
+sizeCounter: parcialStackSize
 	
-	^previousContainer sizeCounter: stackSize + 1.! !
+	^previousContainer sizeCounter: parcialStackSize + 1.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'FilledContainer class' category: 'Stack-Exercise'!
+FilledContainer class
+	instanceVariableNames: ''!
+
+!FilledContainer class methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:48:11'!
+with: anObject and: aContainer
+
+	^self new initializeWith: anObject  and: aContainer.! !
 
 
 !classDefinition: #NullContainer category: 'Stack-Exercise'!
@@ -375,13 +441,13 @@ StackContainer subclass: #NullContainer
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!NullContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/2/2021 21:41:52'!
+!NullContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:47:24'!
 addContainerWith: anObject to: aStack
 
-	aStack changeTopTo: (FilledContainer new initializeWith: anObject and: self).! !
+	aStack changeTopTo: (FilledContainer with: anObject and: self).! !
 
-!NullContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/2/2021 13:56:09'!
-content
+!NullContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:29:16'!
+getContent
 
 	^self error: OOStack stackEmptyErrorDescription ! !
 
@@ -390,12 +456,12 @@ isEmpty
 
 	^true! !
 
-!NullContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/2/2021 13:56:14'!
-removeLastContainerFrom: aStack
+!NullContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:32:52'!
+removeTopContainerFrom: aStack
 
 	^self error: OOStack stackEmptyErrorDescription.! !
 
-!NullContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/2/2021 20:18:48'!
+!NullContainer methodsFor: 'as yet unclassified' stamp: 'FR 11/3/2021 22:37:15'!
 sizeCounter: stackSize
 	
 	^stackSize! !
