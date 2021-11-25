@@ -161,8 +161,8 @@ test03NoSePuedeRealizarUnaTransferenciaConValorNegativo
 	
 	! !
 
-!TestTransfer methodsFor: 'as yet unclassified' stamp: 'JML 11/23/2021 22:31:36'!
-test04
+!TestTransfer methodsFor: 'as yet unclassified' stamp: 'JML 11/25/2021 17:28:41'!
+test04AlHacerUnaTransferenciaSeRegistraUnaExtraccionEnLaCuentaDeOrigenYUnDepositoEnLaDeDestino
 	
 	Transfer from: originAccount to: destinationAccount for: 100*peso.
 	
@@ -170,8 +170,8 @@ test04
 	self assert: ((destinationAccount transactions at: 1) isKindOf: TransferDeposit).
 	! !
 
-!TestTransfer methodsFor: 'as yet unclassified' stamp: 'JML 11/23/2021 22:36:30'!
-test05
+!TestTransfer methodsFor: 'as yet unclassified' stamp: 'JML 11/25/2021 17:31:06'!
+test05AlHacerUnaTransaccionElPartnerDeLaExtraccionEnLaCuentaDeOrigenEsElCorrecto
 	
 	Transfer from: originAccount to: destinationAccount for: 100*peso.
 	
@@ -249,55 +249,9 @@ for: aValue
 	^ self new initializeFor: aValue ! !
 
 
-!classDefinition: #Transfer category: 'ServiciosFinancieros-Ejercicio'!
-AccountTransaction subclass: #Transfer
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Ejercicio'!
-
-!Transfer methodsFor: 'initialize' stamp: 'JML 11/23/2021 21:58:32'!
-addTransferPartner: aPartner
-	
-	^self subclassResponsibility 
-
-	! !
-
-!Transfer methodsFor: 'initialize' stamp: 'JML 11/23/2021 22:01:12'!
-transferPartner
-	^self subclassResponsibility 
-
-	! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Transfer class' category: 'ServiciosFinancieros-Ejercicio'!
-Transfer class
-	instanceVariableNames: ''!
-
-!Transfer class methodsFor: 'initialize' stamp: 'JML 11/23/2021 22:30:53'!
-from: originAccount to: destinationAccount for: amountToTransfer
-
-	|deposit withdraw|
-
-	deposit := TransferDeposit register: amountToTransfer on: destinationAccount.
-	withdraw := TransferWithdraw register:  amountToTransfer on: originAccount.
-	
-	
-	deposit addTransferPartner: withdraw.
-	withdraw addTransferPartner: deposit.
-	
-	! !
-
-!Transfer class methodsFor: 'initialize' stamp: 'JML 11/23/2021 20:10:07'!
-valorDeTransferenciaInvalido
-
-	^'El valor de transferencia tiene que ser mayor a 0.'! !
-
-
 !classDefinition: #TransferDeposit category: 'ServiciosFinancieros-Ejercicio'!
-Transfer subclass: #TransferDeposit
-	instanceVariableNames: 'partnerTransferWithdraw'
+AccountTransaction subclass: #TransferDeposit
+	instanceVariableNames: 'transfer'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
@@ -309,10 +263,15 @@ addTransferPartner: aWithdrawPartner
 
 	! !
 
-!TransferDeposit methodsFor: 'initialize' stamp: 'JML 11/23/2021 22:01:25'!
+!TransferDeposit methodsFor: 'initialize' stamp: 'JML 11/25/2021 18:28:54'!
+associateTransfer: aTransfer
+
+	transfer := aTransfer! !
+
+!TransferDeposit methodsFor: 'initialize' stamp: 'JML 11/25/2021 18:30:04'!
 transferPartner
 
-	^partnerTransferWithdraw 
+	^ transfer origin
 
 	! !
 
@@ -329,8 +288,8 @@ for: aValue
 
 
 !classDefinition: #TransferWithdraw category: 'ServiciosFinancieros-Ejercicio'!
-Transfer subclass: #TransferWithdraw
-	instanceVariableNames: 'partnerTransferDeposit'
+AccountTransaction subclass: #TransferWithdraw
+	instanceVariableNames: 'transfer'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
@@ -342,12 +301,17 @@ addTransferPartner: aDepositPartner
 
 	! !
 
-!TransferWithdraw methodsFor: 'initialize' stamp: 'JML 11/23/2021 22:01:34'!
+!TransferWithdraw methodsFor: 'initialize' stamp: 'JML 11/25/2021 18:30:14'!
 transferPartner
 
-	^partnerTransferDeposit 
-
+	^transfer destination.
 	! !
+
+
+!TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'JML 11/25/2021 18:29:08'!
+associateTransfer: aTransfer
+
+	transfer := aTransfer! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -425,3 +389,67 @@ register: aTransaction
 transactions 
 
 	^ transactions copy! !
+
+
+!classDefinition: #Transfer category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #Transfer
+	instanceVariableNames: 'origin destination value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Transfer methodsFor: 'initialize' stamp: 'JML 11/23/2021 21:58:32'!
+addTransferPartner: aPartner
+	
+	^self subclassResponsibility 
+
+	! !
+
+!Transfer methodsFor: 'initialize' stamp: 'JML 11/25/2021 18:27:36'!
+initializeWithOrigin: withdraw destination: deposit andValue: amountToTransfer
+
+	value := amountToTransfer.
+	origin := withdraw.
+	destination := deposit.
+	
+	origin associateTransfer: self.
+	destination associateTransfer: self.
+	! !
+
+!Transfer methodsFor: 'initialize' stamp: 'JML 11/23/2021 22:01:12'!
+transferPartner
+	^self subclassResponsibility 
+
+	! !
+
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'JML 11/25/2021 18:30:25'!
+destination
+	^destination ! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'JML 11/25/2021 18:30:34'!
+origin
+	^origin! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Transfer class' category: 'ServiciosFinancieros-Ejercicio'!
+Transfer class
+	instanceVariableNames: ''!
+
+!Transfer class methodsFor: 'initialize' stamp: 'JML 11/25/2021 18:25:41'!
+from: originAccount to: destinationAccount for: amountToTransfer
+
+	|deposit withdraw transfer|
+	
+	deposit := TransferDeposit register: amountToTransfer on: destinationAccount.
+	withdraw := TransferWithdraw register: amountToTransfer on: originAccount.
+	
+	transfer := self new initializeWithOrigin: withdraw destination: deposit andValue: amountToTransfer.
+	
+	^transfer! !
+
+!Transfer class methodsFor: 'initialize' stamp: 'JML 11/23/2021 20:10:07'!
+valorDeTransferenciaInvalido
+
+	^'El valor de transferencia tiene que ser mayor a 0.'! !
