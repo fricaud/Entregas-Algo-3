@@ -8,4 +8,4 @@ Continuamos con las transferencias entre cuentas. Realizamos test para revisar q
 
 Procedimos con la creación de portfolios. Primero comenzamos realizando test que impliquen portfolios que solo incluyan cuentas, ya que nos pareció mas simple. Luego, añadimos los test e implementaciones para portfolios que contienen otros portfolios.
 
-Interpretamos la consigna de manera incorrecta y por eso tenemos test y mensajes que no deberían estar: test 12, 11, 10 y 'xx' y los respectivos mensajes que utilizan.
+Interpretamos la consigna de manera incorrecta y por eso tenemos test y mensajes que no deberían estar: test 11, 10 y 'xx' y los respectivos mensajes que utilizan.
