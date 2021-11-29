@@ -140,77 +140,61 @@ setUp
 	portfolio2 addElement: account4.
 	portfolio2 addElement: account5.! !
 
-!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 21:49:20'!
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/29/2021 16:57:08'!
 test01UnPortfolioSeCreaConBalanceCero
-	
-	portfolio := BankingPortfolio new.
-	
 	self assert: portfolio balance equals: 0. ! !
 
-!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 21:49:20'!
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/29/2021 16:57:02'!
 test02UnPortfolioNuevoNoContieneCuentasNiPortfolios
-	
-	portfolio := BankingPortfolio new.
-	
 	self assert: portfolio accountsAndPortfoliosQuantity equals: 0. ! !
 
-!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 20:50:29'!
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/29/2021 16:57:18'!
 test03SeAgregaUnaCuentaCorrectamenteAlPortfolio
-	
-	account1 := ReceptiveAccount new.
-	
 	portfolio addElement: account1.
-	
 	self assert: portfolio accountsAndPortfoliosQuantity equals: 1. ! !
 
-!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 20:52:15'!
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/29/2021 16:57:26'!
 test04SeAgreganMultiplesElementosCorrectamenteAlPortfolio
-	
 	portfolio addElement: account1.
 	portfolio addElement: account2.
 	portfolio addElement: portfolio2.
-	
-	
 	self assert: portfolio accountsAndPortfoliosQuantity equals: 3. ! !
 
-!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 20:50:29'!
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/29/2021 16:57:55'!
 test05SeObtieneElBalanceCorrectoDeLasCuentasDelPortfolio
-	
 	portfolio addElement: account1.
 	portfolio addElement: account2.
 	portfolio addElement: account3.
-	
 	Deposit register: 100*peso on: account1.
 	Deposit register: 300*peso on: account2.
 	Withdraw register: 300*peso on: account3.
-	
 	self assert: portfolio balance equals: 100*peso. ! !
 
-!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'FR 11/29/2021 01:38:26'!
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/29/2021 16:58:09'!
 test06UnPortfolioPuedeVerificarSiUnaDeSusCuentasRegistroUnaTransaccion
-
 	| deposit |
 	
 	portfolio addElement: account1.
-	
 	deposit := Deposit register: 300*peso on: account1. 
-	
 	self assert: (portfolio hasRegistered: deposit).! !
 
-!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'FR 11/29/2021 01:38:31'!
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/29/2021 16:58:57'!
 test07UnPortfolioConoceTodasLasTransaccionesDeCadaUnaDeSusCuentas
-	
 	portfolio addElement: account1.
+	
 	portfolio addElement: account2.
+	
 	portfolio addElement: account3.
 	
 	Deposit register: 300*peso on: account1. 
+	
 	Deposit register: 200*peso on: account1. 
+	
 	Withdraw register: 100*peso on: account1. 
+	
 	TransferTransaction from: account1 to: account2 for: 500*peso.
 	
 	Deposit register: 300*peso on: account2. 
-	
 	Withdraw register: 100*peso on: account3. 
 	
 	self assert: (portfolio anAccountTransactions: account1) equals: account1 transactions.
@@ -218,15 +202,18 @@ test07UnPortfolioConoceTodasLasTransaccionesDeCadaUnaDeSusCuentas
 	self assert: (portfolio anAccountTransactions: account3) equals: account3 transactions.
 ! !
 
-!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'FR 11/29/2021 01:38:38'!
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/29/2021 17:00:28'!
 test08UnPortfolioQueIncluyePortfoliosYCuentasCalculaSuBalanceCorrectamente
-	
 	portfolio addElement: portfolio2.
+	
 	portfolio addElement: account1.
 	
 	Deposit register: 1000*peso on: account4.
+	
 	Withdraw register: 200*peso on: account5.
+	
 	TransferTransaction from: account4 to: account5 for: 300*peso.
+	
 	TransferTransaction from: account5 to: account3 for: 300*peso.
 	
 	Deposit register: 100*peso on: account1.
@@ -284,6 +271,57 @@ test11UnPortfolioQueBuscaLasTrasaccionesDeUnaCuentaQueNoContieneDaErrorDeCuentaN
 		withExceptionDo: [:anError|.
 			self assert: anError messageText equals: BankingPortfolio accountNotFoundError.
 		].! !
+
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/29/2021 17:01:23'!
+test12UnPortfolioQueNoIncluyeOtrosPortfoliosObtieneTodasLasTransaccionesDeLasCuentasQueContiene
+
+	| collection |
+	
+	portfolio addElement: account1.
+	portfolio addElement: account2.
+	
+	Deposit register: 100*peso on: account1.
+	Deposit register: 150*peso on:account2.
+	
+	collection := OrderedCollection new.
+	
+	collection addAll: account1 transactions.
+	collection addAll: account2 transactions.
+	
+	self assert: (portfolio transactions) equals: collection.
+	! !
+
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/29/2021 17:01:35'!
+test13UnPortfolioObtieneTodasLasTransaccionesDeLasCuentasYPortfoliosQueContiene
+
+	| collection |
+	portfolio addElement: account1.
+	portfolio addElement: account2.
+	
+	portfolio addElement: portfolio2.
+	
+	Deposit register: 100*peso on: account1.
+	Deposit register: 150*peso on:account2.
+	Deposit register: 200*peso on:account4.
+	Deposit register: 300*peso on:account5.
+	
+	collection := OrderedCollection new.
+	
+	collection addAll: account1 transactions.
+	collection addAll:account2 transactions.
+	collection addAll: account4 transactions.
+	collection addAll: account5 transactions.
+	
+	self assert: (portfolio transactions) equals: collection.
+	! !
+
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/29/2021 16:05:59'!
+testxx
+	portfolio addElement: portfolio2.
+	portfolio addElement: account1.
+	
+	self assert: (portfolio anAccountTransactions: account1) equals: account1 transactions.
+	! !
 
 
 !classDefinition: #TestTransfer category: 'ServiciosFinancieros-Ejercicio'!
@@ -547,39 +585,48 @@ addElement: anAccountOrPortfolio
 	
 	accountsAndPortfolios add: anAccountOrPortfolio! !
 
-!BankingPortfolio methodsFor: 'all' stamp: 'FR 11/29/2021 02:20:22'!
+!BankingPortfolio methodsFor: 'all' stamp: 'JML 11/29/2021 16:06:48'!
 anAccountTransactions: anAccount
-	
-	^(self findAccountForTransactions: anAccount) transactions! !
+	^(self findAccount: anAccount) = anAccount ifTrue:[ anAccount transactions] ifFalse: [^self error:BankingPortfolio accountNotFoundError]! !
 
-!BankingPortfolio methodsFor: 'all' stamp: 'JML 11/28/2021 00:49:41'!
+!BankingPortfolio methodsFor: 'all' stamp: 'JML 11/29/2021 16:56:34'!
 balance
 	
-	accountsAndPortfolios isEmpty ifTrue:[^0]. 
+	accountsAndPortfolios isEmpty ifTrue:[^0].
+	
 	^ accountsAndPortfolios sum: [:element| element balance]! !
 
-!BankingPortfolio methodsFor: 'all' stamp: 'FR 11/29/2021 02:20:26'!
-findAccountForTransactions: anAccount
-
+!BankingPortfolio methodsFor: 'all' stamp: 'JML 11/29/2021 16:06:48'!
+findAccount: anAccount
 	|foundAccount|
-
 	accountsAndPortfolios do: [: element | 
-	foundAccount := (element findAccountForTransactions: anAccount).
+	foundAccount := (element findAccount: anAccount).
 	foundAccount = anAccount 	ifTrue: [^foundAccount]].
-	^self error: BankingPortfolio accountNotFoundError
+
+	^self
+
 ! !
 
-!BankingPortfolio methodsFor: 'all' stamp: 'JML 11/27/2021 21:51:47'!
+!BankingPortfolio methodsFor: 'all' stamp: 'JML 11/29/2021 16:11:28'!
 hasRegistered: aTransaction
 	
 	^accountsAndPortfolios anySatisfy: [:anAccount| anAccount hasRegistered: aTransaction]
-	
 	! !
 
 !BankingPortfolio methodsFor: 'all' stamp: 'JML 11/27/2021 21:51:47'!
 initialize
 
 	accountsAndPortfolios := OrderedCollection new.! !
+
+!BankingPortfolio methodsFor: 'all' stamp: 'JML 11/29/2021 16:42:53'!
+transactions
+
+	| transactions |
+	transactions := OrderedCollection new.
+	
+	accountsAndPortfolios do: [:element| transactions addAll:(element transactions)].
+	
+	^transactions! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -622,8 +669,8 @@ balance
 	 ^balance
 ! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'FR 11/29/2021 02:20:21'!
-findAccountForTransactions: anAccount
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'JML 11/29/2021 16:06:48'!
+findAccount: anAccount
 
 	^self! !
 
