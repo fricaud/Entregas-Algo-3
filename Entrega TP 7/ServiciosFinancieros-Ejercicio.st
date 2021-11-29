@@ -117,6 +117,175 @@ test08TransactionValueMustBeGreaterThanZero
 ! !
 
 
+!classDefinition: #TestPortfolio category: 'ServiciosFinancieros-Ejercicio'!
+TestCase subclass: #TestPortfolio
+	instanceVariableNames: 'portfolio account1 account2 account3 portfolio2 account4 account5'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 21:49:20'!
+setUp
+
+	portfolio := BankingPortfolio new.
+	portfolio2 := BankingPortfolio new.
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new. 
+	account3 := ReceptiveAccount new.
+
+	account4 := ReceptiveAccount new. 
+	account5 := ReceptiveAccount new.
+	
+	portfolio2 addElement: account4.
+	portfolio2 addElement: account5.! !
+
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 21:49:20'!
+test01UnPortfolioSeCreaConBalanceCero
+	
+	portfolio := BankingPortfolio new.
+	
+	self assert: portfolio balance equals: 0. ! !
+
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 21:49:20'!
+test02UnPortfolioNuevoNoContieneCuentasNiPortfolios
+	
+	portfolio := BankingPortfolio new.
+	
+	self assert: portfolio accountsAndPortfoliosQuantity equals: 0. ! !
+
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 20:50:29'!
+test03SeAgregaUnaCuentaCorrectamenteAlPortfolio
+	
+	account1 := ReceptiveAccount new.
+	
+	portfolio addElement: account1.
+	
+	self assert: portfolio accountsAndPortfoliosQuantity equals: 1. ! !
+
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 20:52:15'!
+test04SeAgreganMultiplesElementosCorrectamenteAlPortfolio
+	
+	portfolio addElement: account1.
+	portfolio addElement: account2.
+	portfolio addElement: portfolio2.
+	
+	
+	self assert: portfolio accountsAndPortfoliosQuantity equals: 3. ! !
+
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 20:50:29'!
+test05SeObtieneElBalanceCorrectoDeLasCuentasDelPortfolio
+	
+	portfolio addElement: account1.
+	portfolio addElement: account2.
+	portfolio addElement: account3.
+	
+	Deposit register: 100*peso on: account1.
+	Deposit register: 300*peso on: account2.
+	Withdraw register: 300*peso on: account3.
+	
+	self assert: portfolio balance equals: 100*peso. ! !
+
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'FR 11/29/2021 01:38:26'!
+test06UnPortfolioPuedeVerificarSiUnaDeSusCuentasRegistroUnaTransaccion
+
+	| deposit |
+	
+	portfolio addElement: account1.
+	
+	deposit := Deposit register: 300*peso on: account1. 
+	
+	self assert: (portfolio hasRegistered: deposit).! !
+
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'FR 11/29/2021 01:38:31'!
+test07UnPortfolioConoceTodasLasTransaccionesDeCadaUnaDeSusCuentas
+	
+	portfolio addElement: account1.
+	portfolio addElement: account2.
+	portfolio addElement: account3.
+	
+	Deposit register: 300*peso on: account1. 
+	Deposit register: 200*peso on: account1. 
+	Withdraw register: 100*peso on: account1. 
+	TransferTransaction from: account1 to: account2 for: 500*peso.
+	
+	Deposit register: 300*peso on: account2. 
+	
+	Withdraw register: 100*peso on: account3. 
+	
+	self assert: (portfolio anAccountTransactions: account1) equals: account1 transactions.
+	self assert: (portfolio anAccountTransactions: account2) equals: account2 transactions.
+	self assert: (portfolio anAccountTransactions: account3) equals: account3 transactions.
+! !
+
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'FR 11/29/2021 01:38:38'!
+test08UnPortfolioQueIncluyePortfoliosYCuentasCalculaSuBalanceCorrectamente
+	
+	portfolio addElement: portfolio2.
+	portfolio addElement: account1.
+	
+	Deposit register: 1000*peso on: account4.
+	Withdraw register: 200*peso on: account5.
+	TransferTransaction from: account4 to: account5 for: 300*peso.
+	TransferTransaction from: account5 to: account3 for: 300*peso.
+	
+	Deposit register: 100*peso on: account1.
+	
+	self assert: portfolio balance equals: 600*peso.! !
+
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'FR 11/29/2021 01:38:50'!
+test09UnPortfolioQueIncluyeOtroPortfolioVerificaQueUnaDeSusCuentasRealizoUnaTransaccion
+
+	| deposit |
+	
+	portfolio addElement: portfolio2.
+	
+	portfolio2 addElement: account1.
+	
+	deposit := Deposit register: 100*peso on: account1.
+	
+	self assert: (portfolio hasRegistered: deposit).! !
+
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'FR 11/29/2021 01:38:55'!
+test10UnPortfolioQueIncluyeOtrosPortfolioPuedeEncontrarLasTransaccionesDeUnaDeSusCuentas
+	| portfolio3 |
+	portfolio3 := BankingPortfolio new.
+	portfolio addElement: account1.
+	portfolio addElement: portfolio2.
+	portfolio2 addElement: portfolio3.
+	portfolio3 addElement: account3.
+	
+	Deposit register: 200*peso on: account3.
+	Deposit register: 1000*peso on: account4.
+	Withdraw register: 200*peso on: account5.
+	TransferTransaction from: account4 to: account5 for: 300*peso.
+	TransferTransaction from: account5 to: account3 for: 300*peso.
+	Deposit register: 100*peso on: account1.
+	
+	 
+	self assert: (portfolio anAccountTransactions: account1) equals: account1 transactions.
+	self assert: (portfolio anAccountTransactions: account4) equals: account4 transactions.
+	self assert: (portfolio anAccountTransactions: account5) equals: account5 transactions.  
+	self assert: (portfolio anAccountTransactions: account3) equals: account3 transactions.! !
+
+!TestPortfolio methodsFor: 'as yet unclassified' stamp: 'FR 11/29/2021 01:39:05'!
+test11UnPortfolioQueBuscaLasTrasaccionesDeUnaCuentaQueNoContieneDaErrorDeCuentaNoEncontrada
+	| portfolio3 |
+	portfolio3 := BankingPortfolio new.
+	portfolio addElement: account1.
+	portfolio addElement: portfolio2.
+	portfolio2 addElement: portfolio3.
+	portfolio3 addElement: account3.
+	 
+		
+	self 
+		should: [portfolio anAccountTransactions: account2.] 
+		raise: Error 
+		withExceptionDo: [:anError|.
+			self assert: anError messageText equals: BankingPortfolio accountNotFoundError.
+		].! !
+
+
 !classDefinition: #TestTransfer category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #TestTransfer
 	instanceVariableNames: 'originAccount destinationAccount'
@@ -124,20 +293,19 @@ TestCase subclass: #TestTransfer
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!TestTransfer methodsFor: 'as yet unclassified' stamp: 'JML 11/23/2021 21:13:25'!
+!TestTransfer methodsFor: 'as yet unclassified' stamp: 'JML 11/28/2021 00:48:26'!
 test01UnaTrasferenciaDescuentaDelBalanceDeLaCuentaDeOrigenYAgregaAlBalanceDeLaCuentaDeDestino
 	
-	Transfer from: originAccount to: destinationAccount for: 100*peso.
+	TransferTransaction from: originAccount to: destinationAccount for: 100*peso.
 	
 	self assert: originAccount balance equals: (-100*peso).
 	self assert: destinationAccount balance equals: (100*peso). ! !
 
-!TestTransfer methodsFor: 'as yet unclassified' stamp: 'JML 11/23/2021 21:13:22'!
+!TestTransfer methodsFor: 'as yet unclassified' stamp: 'JML 11/28/2021 00:48:26'!
 test02NoSePuedeRealizarUnaTransferenciaConValorCero
-
 	
 	self 
-		should: [Transfer from: originAccount to: destinationAccount for: 0*peso.] 
+		should: [TransferTransaction from: originAccount to: destinationAccount for: 0*peso.] 
 		raise: Error 
 		withExceptionDo: [:anError|
 			self assert: originAccount balance equals: (0*peso).
@@ -147,11 +315,11 @@ test02NoSePuedeRealizarUnaTransferenciaConValorCero
 	 
 	! !
 
-!TestTransfer methodsFor: 'as yet unclassified' stamp: 'JML 11/23/2021 21:13:16'!
+!TestTransfer methodsFor: 'as yet unclassified' stamp: 'JML 11/28/2021 00:48:26'!
 test03NoSePuedeRealizarUnaTransferenciaConValorNegativo
 	
 	self 
-		should: [Transfer from: originAccount to: destinationAccount for: -100*peso] 
+		should: [TransferTransaction from: originAccount to: destinationAccount for: -100*peso] 
 		raise: Error 
 		withExceptionDo: [:anError|
 			self assert: originAccount balance equals: (0*peso).
@@ -161,26 +329,33 @@ test03NoSePuedeRealizarUnaTransferenciaConValorNegativo
 	
 	! !
 
-!TestTransfer methodsFor: 'as yet unclassified' stamp: 'JML 11/25/2021 17:28:41'!
+!TestTransfer methodsFor: 'as yet unclassified' stamp: 'JML 11/28/2021 00:48:26'!
 test04AlHacerUnaTransferenciaSeRegistraUnaExtraccionEnLaCuentaDeOrigenYUnDepositoEnLaDeDestino
 	
-	Transfer from: originAccount to: destinationAccount for: 100*peso.
+	| transfer |
 	
-	self assert: ((originAccount transactions at: 1) isKindOf: TransferWithdraw).
-	self assert: ((destinationAccount transactions at: 1) isKindOf: TransferDeposit).
+	transfer := TransferTransaction from: originAccount to: destinationAccount for: 100*peso.
+	
+	self assert: (originAccount hasRegistered: transfer transferWithdraw).
+	
+	self assert: (destinationAccount hasRegistered: transfer transferDeposit).
 	! !
 
-!TestTransfer methodsFor: 'as yet unclassified' stamp: 'JML 11/25/2021 17:31:06'!
-test05AlHacerUnaTransaccionElPartnerDeLaExtraccionEnLaCuentaDeOrigenEsElCorrecto
+!TestTransfer methodsFor: 'as yet unclassified' stamp: 'JML 11/28/2021 00:48:26'!
+test05LaTransaccionDeUnaTransferenciaEnUnaCuentaConoceASuContraparte
+
+	| transfer |
 	
-	Transfer from: originAccount to: destinationAccount for: 100*peso.
+	transfer := TransferTransaction from: originAccount to: destinationAccount for: 100*peso.
+
+	self assert: ( originAccount transactions last) transferCounterpart equals: transfer transferDeposit.
 	
-	self assert: (((originAccount transactions at: 1) transferPartner)value) equals: 100*peso.
-	self assert: (((originAccount transactions at: 1) transferPartner) isKindOf: TransferDeposit).
+	self assert: (destinationAccount transactions last) transferCounterpart equals: transfer transferWithdraw.
+	
 	! !
 
 
-!TestTransfer methodsFor: 'setUp/tearDown' stamp: 'JML 11/23/2021 21:13:29'!
+!TestTransfer methodsFor: 'setUp/tearDown' stamp: 'JML 11/27/2021 19:18:55'!
 setUp
 
 	originAccount := ReceptiveAccount new.
@@ -204,6 +379,12 @@ value
 initializeFor: aValue
 
 	value := aValue! !
+
+
+!AccountTransaction methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 19:51:53'!
+affectBalance: aBalance
+	
+	^self subclassResponsibility ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -236,6 +417,10 @@ AccountTransaction subclass: #Deposit
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
+!Deposit methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 19:52:44'!
+affectBalance: aBalance
+
+	^ aBalance + value! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -256,24 +441,23 @@ AccountTransaction subclass: #TransferDeposit
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!TransferDeposit methodsFor: 'initialize' stamp: 'JML 11/23/2021 21:59:13'!
-addTransferPartner: aWithdrawPartner
-	
-	partnerTransferWithdraw := aWithdrawPartner 
-
-	! !
-
 !TransferDeposit methodsFor: 'initialize' stamp: 'JML 11/25/2021 18:28:54'!
 associateTransfer: aTransfer
 
 	transfer := aTransfer! !
 
-!TransferDeposit methodsFor: 'initialize' stamp: 'JML 11/25/2021 18:30:04'!
-transferPartner
+!TransferDeposit methodsFor: 'initialize' stamp: 'JML 11/27/2021 19:11:38'!
+transferCounterpart
 
-	^ transfer origin
+	^transfer transferWithdraw
 
 	! !
+
+
+!TransferDeposit methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 19:53:17'!
+affectBalance: aBalance
+
+	^ aBalance + value! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -294,19 +478,17 @@ AccountTransaction subclass: #TransferWithdraw
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!TransferWithdraw methodsFor: 'initialize' stamp: 'JML 11/23/2021 21:59:42'!
-addTransferPartner: aDepositPartner
-	
-	partnerTransferDeposit := aDepositPartner 
+!TransferWithdraw methodsFor: 'initialize' stamp: 'JML 11/27/2021 19:11:38'!
+transferCounterpart
 
+	^transfer transferDeposit.
 	! !
 
-!TransferWithdraw methodsFor: 'initialize' stamp: 'JML 11/25/2021 18:30:14'!
-transferPartner
 
-	^transfer destination.
-	! !
+!TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 19:53:28'!
+affectBalance: aBalance
 
+	^ aBalance - value! !
 
 !TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'JML 11/25/2021 18:29:08'!
 associateTransfer: aTransfer
@@ -332,6 +514,10 @@ AccountTransaction subclass: #Withdraw
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
+!Withdraw methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 19:53:35'!
+affectBalance: aBalance
+
+	^ aBalance - value! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -344,6 +530,71 @@ for: aValue
 
 	^ self new initializeFor: aValue ! !
 
+
+!classDefinition: #BankingPortfolio category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #BankingPortfolio
+	instanceVariableNames: 'accountsAndPortfolios'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!BankingPortfolio methodsFor: 'all' stamp: 'JML 11/27/2021 21:51:47'!
+accountsAndPortfoliosQuantity
+	^ accountsAndPortfolios size.! !
+
+!BankingPortfolio methodsFor: 'all' stamp: 'FR 11/29/2021 02:46:58'!
+addElement: anAccountOrPortfolio 
+	
+	accountsAndPortfolios add: anAccountOrPortfolio! !
+
+!BankingPortfolio methodsFor: 'all' stamp: 'FR 11/29/2021 02:20:22'!
+anAccountTransactions: anAccount
+	
+	^(self findAccountForTransactions: anAccount) transactions! !
+
+!BankingPortfolio methodsFor: 'all' stamp: 'JML 11/28/2021 00:49:41'!
+balance
+	
+	accountsAndPortfolios isEmpty ifTrue:[^0]. 
+	^ accountsAndPortfolios sum: [:element| element balance]! !
+
+!BankingPortfolio methodsFor: 'all' stamp: 'FR 11/29/2021 02:20:26'!
+findAccountForTransactions: anAccount
+
+	|foundAccount|
+
+	accountsAndPortfolios do: [: element | 
+	foundAccount := (element findAccountForTransactions: anAccount).
+	foundAccount = anAccount 	ifTrue: [^foundAccount]].
+	^self error: BankingPortfolio accountNotFoundError
+! !
+
+!BankingPortfolio methodsFor: 'all' stamp: 'JML 11/27/2021 21:51:47'!
+hasRegistered: aTransaction
+	
+	^accountsAndPortfolios anySatisfy: [:anAccount| anAccount hasRegistered: aTransaction]
+	
+	! !
+
+!BankingPortfolio methodsFor: 'all' stamp: 'JML 11/27/2021 21:51:47'!
+initialize
+
+	accountsAndPortfolios := OrderedCollection new.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'BankingPortfolio class' category: 'ServiciosFinancieros-Ejercicio'!
+BankingPortfolio class
+	instanceVariableNames: ''!
+
+!BankingPortfolio class methodsFor: 'as yet unclassified' stamp: 'FR 11/29/2021 01:06:33'!
+accountNotFoundError
+	^'La cuenta que busca no se encuentra en este portfolio'! !
+
+!BankingPortfolio class methodsFor: 'as yet unclassified' stamp: 'FR 11/29/2021 01:29:57'!
+errorDeCuentaOPortfolioRepetido
+
+	^'La cuenta o portfolio que se esta intentado agregar ya se encuentra en el portfolio'! !
 
 
 !classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
@@ -359,19 +610,22 @@ initialize
 	transactions := OrderedCollection new.! !
 
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'JML 11/23/2021 22:24:24'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'JML 11/27/2021 19:51:44'!
 balance
 
-	^transactions sum: [ :aTransaction |
-		
-		 (aTransaction isKindOf: Deposit) ifTrue: [ aTransaction value ] ifFalse: [
-			(aTransaction isKindOf: Withdraw) ifTrue: [ aTransaction value negated] ifFalse: [
-				(aTransaction isKindOf: TransferDeposit) ifTrue: [ aTransaction value ] ifFalse: [
-					(aTransaction isKindOf: TransferWithdraw) ifTrue: [ aTransaction value negated]. 
-					]
-				]
-			]
-		] ifEmpty: [ 0 ] ! !
+	| balance |
+	
+	balance := 0.
+	
+	transactions do: [ :aTransaction | balance := aTransaction affectBalance: balance]. 
+	
+	 ^balance
+! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'FR 11/29/2021 02:20:21'!
+findAccountForTransactions: anAccount
+
+	^self! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'NR 10/17/2019 03:28:43'!
 hasRegistered: aTransaction
@@ -391,53 +645,53 @@ transactions
 	^ transactions copy! !
 
 
-!classDefinition: #Transfer category: 'ServiciosFinancieros-Ejercicio'!
-Object subclass: #Transfer
-	instanceVariableNames: 'origin destination value'
+!classDefinition: #TransferTransaction category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #TransferTransaction
+	instanceVariableNames: 'transferWithdraw transferDeposit value'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Transfer methodsFor: 'initialize' stamp: 'JML 11/23/2021 21:58:32'!
+!TransferTransaction methodsFor: 'initialize' stamp: 'JML 11/23/2021 21:58:32'!
 addTransferPartner: aPartner
 	
 	^self subclassResponsibility 
 
 	! !
 
-!Transfer methodsFor: 'initialize' stamp: 'JML 11/25/2021 18:27:36'!
+!TransferTransaction methodsFor: 'initialize' stamp: 'JML 11/27/2021 18:37:59'!
 initializeWithOrigin: withdraw destination: deposit andValue: amountToTransfer
 
 	value := amountToTransfer.
-	origin := withdraw.
-	destination := deposit.
+	transferWithdraw := withdraw.
+	transferDeposit := deposit.
 	
-	origin associateTransfer: self.
-	destination associateTransfer: self.
+	transferWithdraw associateTransfer: self.
+	transferDeposit associateTransfer: self.
 	! !
 
-!Transfer methodsFor: 'initialize' stamp: 'JML 11/23/2021 22:01:12'!
-transferPartner
+!TransferTransaction methodsFor: 'initialize' stamp: 'JML 11/27/2021 19:11:39'!
+transferCounterpart
 	^self subclassResponsibility 
 
 	! !
 
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'JML 11/25/2021 18:30:25'!
-destination
-	^destination ! !
+!TransferTransaction methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 18:41:05'!
+transferDeposit
+	^transferDeposit ! !
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'JML 11/25/2021 18:30:34'!
-origin
-	^origin! !
+!TransferTransaction methodsFor: 'as yet unclassified' stamp: 'JML 11/27/2021 18:41:22'!
+transferWithdraw
+	^transferWithdraw! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'Transfer class' category: 'ServiciosFinancieros-Ejercicio'!
-Transfer class
+!classDefinition: 'TransferTransaction class' category: 'ServiciosFinancieros-Ejercicio'!
+TransferTransaction class
 	instanceVariableNames: ''!
 
-!Transfer class methodsFor: 'initialize' stamp: 'JML 11/25/2021 18:25:41'!
+!TransferTransaction class methodsFor: 'initialize' stamp: 'JML 11/25/2021 18:25:41'!
 from: originAccount to: destinationAccount for: amountToTransfer
 
 	|deposit withdraw transfer|
@@ -449,7 +703,7 @@ from: originAccount to: destinationAccount for: amountToTransfer
 	
 	^transfer! !
 
-!Transfer class methodsFor: 'initialize' stamp: 'JML 11/23/2021 20:10:07'!
+!TransferTransaction class methodsFor: 'initialize' stamp: 'JML 11/23/2021 20:10:07'!
 valorDeTransferenciaInvalido
 
 	^'El valor de transferencia tiene que ser mayor a 0.'! !
