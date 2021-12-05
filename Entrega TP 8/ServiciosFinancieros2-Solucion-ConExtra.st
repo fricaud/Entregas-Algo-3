@@ -1,3 +1,90 @@
+!classDefinition: #EspecialReportsTest category: 'ServiciosFinancieros-Solucion'!
+TestCase subclass: #EspecialReportsTest
+	instanceVariableNames: 'myAccount childrenPortfolio johnsAccount angiesAccount familyPortfolio saltoDeLinea'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Solucion'!
+
+!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 22:28:53'!
+setUp
+	
+	johnsAccount := ReceptiveAccount named: 'Cuenta de Juan'. 
+	angiesAccount := ReceptiveAccount named: 'Cuenta de Angeles'. 
+	childrenPortfolio := Portfolio named: 'Portfolio de hijos' with: johnsAccount with: angiesAccount. 
+	myAccount := ReceptiveAccount named: 'Cuenta mia'. 
+	familyPortfolio := Portfolio named: 'Portfolio de la familia' with: myAccount with: childrenPortfolio.
+	
+	saltoDeLinea := (String with: Character cr).
+	! !
+
+!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 21:46:52'!
+test01UnaReceptiveAccountSePuedeCrearConNombre
+
+	self assert: (myAccount accountName) equals: 'Cuenta mia'! !
+
+!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 21:46:14'!
+test02UnPortfolioSePuedeCrearConUnNombre
+
+	self assert: (childrenPortfolio accountName) equals: 'Portfolio de hijos'! !
+
+!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 22:52:23'!
+test03
+	
+	| portfolioVacio |
+	
+	portfolioVacio := Portfolio named: 'Portfolio Vacio'.
+	
+	self assert: (PortfolioTreePrinter createReportFor: portfolioVacio) equals: portfolioVacio accountName, saltoDeLinea! !
+
+!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 00:20:51'!
+test04
+	
+	| portfolioConUnaCuenta |
+	
+	portfolioConUnaCuenta := Portfolio named: 'Portfolio con una cuenta' with: angiesAccount.
+	
+	self assert: (PortfolioTreePrinter createReportFor: portfolioConUnaCuenta) equals: 
+	portfolioConUnaCuenta accountName , saltoDeLinea,
+	'	',angiesAccount accountName,saltoDeLinea.! !
+
+!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 23:03:23'!
+test05
+	
+	self assert: (PortfolioTreePrinter createReportFor: childrenPortfolio) equals: 
+	childrenPortfolio accountName, saltoDeLinea,
+	'	',johnsAccount accountName, saltoDeLinea,
+	'	',angiesAccount accountName, saltoDeLinea.! !
+
+!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 00:21:41'!
+test06
+
+	self assert: (PortfolioTreePrinter createReportFor: familyPortfolio) equals:
+	familyPortfolio accountName, saltoDeLinea,
+	'	', myAccount accountName , saltoDeLinea, 
+	'	', childrenPortfolio accountName , saltoDeLinea, 
+	'	','	',johnsAccount accountName, saltoDeLinea,
+	'	','	',angiesAccount accountName, saltoDeLinea.! !
+
+!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 00:22:29'!
+test07
+	
+	| account portfolio1 |
+	
+	account:= ReceptiveAccount named: 'chau'.
+	
+	portfolio1:= Portfolio named: 'hola' with: account.
+	
+	childrenPortfolio add: portfolio1.
+	
+	self assert: (PortfolioTreePrinter createReportFor: familyPortfolio) equals: familyPortfolio accountName, saltoDeLinea,
+	'	', myAccount accountName , saltoDeLinea, 
+	'	', childrenPortfolio accountName , saltoDeLinea, 
+	'	','	',johnsAccount accountName, saltoDeLinea,
+	'	','	',angiesAccount accountName, saltoDeLinea,
+	'	','	',portfolio1 accountName, saltoDeLinea,
+	'	','	','	',account accountName, saltoDeLinea.! !
+
+
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Solucion'!
 TestCase subclass: #PortfolioTest
 	instanceVariableNames: ''
@@ -304,7 +391,7 @@ test07AccountKnowsItsTransactions
 
 !classDefinition: #ReportsTest category: 'ServiciosFinancieros-Solucion'!
 TestCase subclass: #ReportsTest
-	instanceVariableNames: 'account1 summary1 account2 saltoDeLinea'
+	instanceVariableNames: 'account1 summary1 account2 saltoDeLinea portfolio1 account3 portfolio2'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
@@ -336,20 +423,30 @@ createTransferNetForAccount2
 	
 	^TransferNet createReportFor: account2! !
 
-!ReportsTest methodsFor: 'setUp' stamp: 'FR 12/4/2021 20:57:44'!
+!ReportsTest methodsFor: 'setUp' stamp: 'FR 12/4/2021 22:19:40'!
 setUp
 		
 	account1 := ReceptiveAccount new.
 	
 	account2 := ReceptiveAccount new.
 	
-	saltoDeLinea := (String with: Character cr).! !
+	account3 := ReceptiveAccount new.
+	
+	saltoDeLinea := (String with: Character cr).
+	
+	portfolio1 := Portfolio with: account1 with: account2.
+	
+	portfolio2 := Portfolio new.
+	
+	portfolio2 add: portfolio1.
+	portfolio2 add: account3.! !
 
 
-!ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 20:46:01'!
+!ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 22:19:40'!
 test01UnSumarioDeUnaCuentaSinTransaccionesDevuelveBalanceCero
 	
-	self assert: self createSummaryForAccount1 equals: 'Balance = 0 pesos'! !
+	self assert: self createSummaryForAccount1 equals: 'Balance = 0 pesos'.
+	self assert: (AccountSummary createReportFor: portfolio2) equals: 'Balance = 0 pesos'.! !
 
 !ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 20:57:55'!
 test02UnSumarioMuestraCorrectamenteElResultadoParaUnaCuentaConUnDepósito
@@ -373,8 +470,8 @@ test04LosSumariosMuestranCorrectamenteElResultadoParaUnaDosCuentasLuegoDeUnaTran
 	self assert: self createSummaryForAccount1 equals: 'Salida por transferencia de 100 pesos', saltoDeLinea ,'Balance = -100 pesos'.
 	self assert: self createSummaryForAccount2 equals: 'Entrada por transferencia de 100 pesos', saltoDeLinea ,'Balance = 100 pesos'! !
 
-!ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 20:58:46'!
-test05LosSumariosMuestraElResultadoCorrectoParaUnaCuentaConVariasTransacciones
+!ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 21:51:55'!
+test05LosSumariosMuestranElResultadoCorrectoParaUnaCuentaConVariasTransacciones
 		
 	Transfer amount: 100*peso from:account1  to: account2.
 	Deposit register: 100*peso on: account1.
@@ -387,29 +484,64 @@ test05LosSumariosMuestraElResultadoCorrectoParaUnaCuentaConVariasTransacciones
 	self assert: self createSummaryForAccount2 equals: 
 	'Entrada por transferencia de 100 pesos', saltoDeLinea, 'Depósito por 100 pesos', saltoDeLinea ,'Balance = 200 pesos'! !
 
-!ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 20:48:48'!
-test06UnTransferNetDeUnaCuentaSinTransaccionesDaResultadoCero
+!ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 22:13:39'!
+test06ElsumarioSeCreaCorrectamenteParaUnPortfolio
 	
-	self assert: self createTransferNetForAccount1 equals: 'Neto de transferencias = 0 pesos'! !
+	Transfer amount: 100*peso from:account1  to: account2.
+	Deposit register: 100*peso on: account1.
+	Withdraw register: 200*peso on: account1.
+	Deposit register: 100*peso on: account2. 
 
-!ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 20:49:09'!
-test07LosTransferNetDeDosCuentasConUnaTransaccionSonCorrectos
+	self assert: (AccountSummary createReportFor: portfolio1) equals:
+	'Salida por transferencia de 100 pesos', saltoDeLinea ,
+	'Depósito por 100 pesos', saltoDeLinea ,
+	'Extracción por 200 pesos', saltoDeLinea , 
+	'Entrada por transferencia de 100 pesos', saltoDeLinea, 
+	'Depósito por 100 pesos', saltoDeLinea ,
+	'Balance = 0 pesos'.! !
+
+!ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 22:19:40'!
+test07ElsumarioSeCreaCorrectamenteParaUnPortfolioConOtroPortfolio
+
+	Transfer amount: 100*peso from:account1  to: account2.
+	Deposit register: 100*peso on: account1.
+	Withdraw register: 200*peso on: account1.
+	Deposit register: 100*peso on: account2.
+	Deposit register: 100*peso on: account3.
+
+	self assert: (AccountSummary createReportFor: portfolio2) equals:
+	'Salida por transferencia de 100 pesos', saltoDeLinea ,
+	'Depósito por 100 pesos', saltoDeLinea ,
+	'Extracción por 200 pesos', saltoDeLinea , 
+	'Entrada por transferencia de 100 pesos', saltoDeLinea, 
+	'Depósito por 100 pesos', saltoDeLinea ,
+	'Depósito por 100 pesos', saltoDeLinea ,
+	'Balance = 100 pesos'.! !
+
+!ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 22:20:31'!
+test08UnTransferNetDeUnaCuentaSinTransaccionesDaResultadoCero
+	
+	self assert: self createTransferNetForAccount1 equals: 'Neto de transferencias = 0 pesos'.
+	self assert: (TransferNet createReportFor: portfolio2) equals: 'Neto de transferencias = 0 pesos'.! !
+
+!ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 22:01:14'!
+test09LosTransferNetDeDosCuentasConUnaTransaccionSonCorrectos
 	
 	Transfer amount: 100*peso from: account1  to: account2.
 
 	self assert: self createTransferNetForAccount1 equals: 'Neto de transferencias = -100 pesos'.
 	self assert: self createTransferNetForAccount2 equals: 'Neto de transferencias = 100 pesos'.! !
 
-!ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 20:55:25'!
-test08LosTransferNetDeDosCuentasConVariasTransaccionesSonCorrectos
+!ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 22:01:21'!
+test10LosTransferNetDeDosCuentasConVariasTransaccionesSonCorrectos
 
 	self createThreeTransfersBetweenAccount1And2.
 	
 	self assert: self createTransferNetForAccount1 equals: 'Neto de transferencias = -100 pesos'.
 	self assert: self createTransferNetForAccount2 equals: 'Neto de transferencias = 100 pesos'.! !
 
-!ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 20:55:52'!
-test09LosTransferNetDeDosCuentasConTodosLosTiposDeTransaccionesSonCorrectos
+!ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 22:01:28'!
+test11LosTransferNetDeDosCuentasConTodosLosTiposDeTransaccionesSonCorrectos
 	
 	self createThreeTransfersBetweenAccount1And2.
 	Deposit register: 100*peso on: account1.
@@ -417,6 +549,28 @@ test09LosTransferNetDeDosCuentasConTodosLosTiposDeTransaccionesSonCorrectos
 
 	self assert: self createTransferNetForAccount1 equals: 'Neto de transferencias = -100 pesos'.
 	self assert: self createTransferNetForAccount2 equals: 'Neto de transferencias = 100 pesos'.! !
+
+!ReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 22:19:41'!
+test12LosTransferNetDeUnPortfolioConOtroPortfolioAdentroSonCorrectos
+	
+	self createThreeTransfersBetweenAccount1And2.	
+	Deposit register: 100*peso on: account1.
+	Withdraw register: 100*peso on: account3.
+	
+	self assert: (TransferNet createReportFor: portfolio2) equals: 'Neto de transferencias = 0 pesos'! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'ReportsTest class' category: 'ServiciosFinancieros-Solucion'!
+ReportsTest class
+	instanceVariableNames: ''!
+
+!ReportsTest class methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 23:32:58'!
+createReportFor: anAccount withIndent: anIndent
+	
+	^self new
+		initializeFor: anAccount;
+		createReport! !
 
 
 !classDefinition: #TransferTest category: 'ServiciosFinancieros-Solucion'!
@@ -525,10 +679,15 @@ test06CannotTransferAZeroAmount
 
 !classDefinition: #Account category: 'ServiciosFinancieros-Solucion'!
 Object subclass: #Account
-	instanceVariableNames: ''
+	instanceVariableNames: 'accountName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
+
+!Account methodsFor: 'main protocol' stamp: 'FR 12/4/2021 21:39:36'!
+accountName
+
+	^accountName! !
 
 !Account methodsFor: 'main protocol' stamp: 'HAW 5/25/2019 12:23:40'!
 balance
@@ -562,6 +721,18 @@ addTransactionsTo: aCollectionOfTransactions
 
 	self subclassResponsibility ! !
 
+
+!Account methodsFor: 'initialization' stamp: 'FR 12/4/2021 21:39:36'!
+nameAccount: aName
+	
+	accountName:= aName! !
+
+
+!Account methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 23:29:03'!
+accept: aVisitor
+	
+	^self subclassResponsibility ! !
+
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros-Solucion'!
 Account subclass: #Portfolio
@@ -576,6 +747,17 @@ initialize
 	accounts := OrderedCollection new.
 	parents := OrderedCollection new.! !
 
+
+!Portfolio methodsFor: 'main protocol' stamp: 'FR 12/4/2021 23:48:38'!
+accept: aPortfolioVisitor
+	
+	^aPortfolioVisitor visitPortfolio: self.
+	! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'FR 12/4/2021 22:31:55'!
+accounts
+
+	^accounts! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'FR 12/1/2021 20:44:47'!
 balance
@@ -636,10 +818,10 @@ addRootParentsTo: rootParents
 		ifEmpty: [ rootParents add: self ] 
 		ifNotEmpty: [ parents do: [ :aParent | aParent addRootParentsTo: rootParents ]]! !
 
-!Portfolio methodsFor: 'composition' stamp: 'HAW 5/25/2019 12:02:59'!
+!Portfolio methodsFor: 'composition' stamp: 'FR 12/4/2021 21:21:42'!
 addedTo: aPortfolio 
 	
-	parents add: aPortfolio ! !
+	parents add: aPortfolio! !
 
 !Portfolio methodsFor: 'composition' stamp: 'HAW 5/25/2019 12:20:56'!
 anyRootParentIsComposedBy: accountToAdd
@@ -682,6 +864,30 @@ Portfolio class
 canNotAddAccountErrorMessage
 	
 	^'Can not add repeated account to a portfolio'! !
+
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 22:51:12'!
+named: aName
+
+	^self new 
+		nameAccount: aName;
+		yourself! !
+
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 21:22:38'!
+named: aName with: anAccount
+
+	^self new 
+		nameAccount: aName;
+		add: anAccount;
+		yourself! !
+
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 21:28:24'!
+named: aName with: anAccount with: anotherAccount
+
+	^self new 
+		nameAccount: aName;
+		add: anAccount;
+		add: anotherAccount;
+		yourself! !
 
 !Portfolio class methodsFor: 'as yet unclassified' stamp: 'HAW 5/25/2019 11:18:21'!
 with: anAccount
@@ -753,6 +959,23 @@ addedTo: aPortfolio
 isComposedBy: anAccount
 
 	^self = anAccount ! !
+
+
+!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 23:48:46'!
+accept: aReceptiveAccountVisitor
+
+	^aReceptiveAccountVisitor visitReceptiveAccount: self.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'ReceptiveAccount class' category: 'ServiciosFinancieros-Solucion'!
+ReceptiveAccount class
+	instanceVariableNames: ''!
+
+!ReceptiveAccount class methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 21:26:20'!
+named: aName
+	
+	^self new nameAccount: aName.! !
 
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Solucion'!
@@ -989,8 +1212,8 @@ Object subclass: #Reports
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!Reports methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 20:34:55'!
-CreateReport
+!Reports methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 23:09:14'!
+createReport
 
 	self subclassResponsibility.
 	! !
@@ -1017,15 +1240,12 @@ visitWithdraw: aWithdraw
 Reports class
 	instanceVariableNames: ''!
 
-!Reports class methodsFor: 'creating' stamp: 'FR 12/4/2021 20:33:34'!
+!Reports class methodsFor: 'creating' stamp: 'FR 12/4/2021 23:09:15'!
 createReportFor: anAccount
 	
-	| aReport |
-	
-	aReport := self new initializeFor: anAccount.
-	
-	^aReport CreateReport.
-	! !
+	^self new
+		initializeFor: anAccount;
+		createReport! !
 
 
 !classDefinition: #AccountSummary category: 'ServiciosFinancieros-Solucion'!
@@ -1035,8 +1255,8 @@ Reports subclass: #AccountSummary
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 20:32:13'!
-CreateReport
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 23:09:14'!
+createReport
 
 	account transactions do: 
 	[:transaction | 
@@ -1073,6 +1293,54 @@ visitWithdraw: aWithdraw
 	finalReport := finalReport ,'Extracción por ', aWithdraw value asString, (String with: Character cr)! !
 
 
+!classDefinition: #PortfolioTreePrinter category: 'ServiciosFinancieros-Solucion'!
+Reports subclass: #PortfolioTreePrinter
+	instanceVariableNames: 'portfolio portfolioTree indetatationCounter'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Solucion'!
+
+!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 23:47:40'!
+createReport
+	
+	portfolioTree := portfolioTree, portfolio accountName, (String with: Character cr).
+ 	portfolio accounts do: [:account | portfolioTree := portfolioTree,'	', (account accept: self)].
+	^portfolioTree! !
+
+!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 00:14:14'!
+createReportFor: anAccount WithIndent: anIndentCounter
+
+	| indentation newPortfolioTree |
+	
+	indetatationCounter := anIndentCounter + 1.
+	
+	indentation:= ''.
+	newPortfolioTree :=''.
+	
+	1 to: indetatationCounter do: [:unused |indentation := indentation, '	'].
+	
+	newPortfolioTree := newPortfolioTree,anAccount accountName, (String with: Character cr).
+ 	anAccount accounts do: [:account | newPortfolioTree := newPortfolioTree, indentation,'	', (account accept: self)].
+	^newPortfolioTree! !
+
+!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 00:06:58'!
+initializeFor: aPortfolio
+	
+	indetatationCounter:= 0.
+	portfolio := aPortfolio.
+	portfolioTree := ''.! !
+
+!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 00:09:36'!
+visitPortfolio: aPorfolio
+
+	^self createReportFor: aPorfolio WithIndent: indetatationCounter.! !
+
+!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 23:46:23'!
+visitReceptiveAccount: aReceptiveAccount
+
+	^(aReceptiveAccount accountName, (String with: Character cr))! !
+
+
 !classDefinition: #TransferNet category: 'ServiciosFinancieros-Solucion'!
 Reports subclass: #TransferNet
 	instanceVariableNames: 'transferNetBalance account'
@@ -1080,8 +1348,8 @@ Reports subclass: #TransferNet
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!TransferNet methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 20:34:14'!
-CreateReport
+!TransferNet methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 23:09:14'!
+createReport
 
 	account transactions do: 
 	[:transaction | transaction accept: self	].
@@ -1096,10 +1364,10 @@ initializeFor: anAccount
 	account := anAccount.
 	transferNetBalance := 0*peso.! !
 
-!TransferNet methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 19:56:30'!
+!TransferNet methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 22:10:19'!
 visitDeposit: aDeposit.
 
-	transferNetBalance := transferNetBalance + 0.	! !
+	transferNetBalance := transferNetBalance.	! !
 
 !TransferNet methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 19:56:14'!
 visitTransferDeposit: aTransferDeposit.
@@ -1111,10 +1379,10 @@ visitTransferWithdraw: aTransferWithdraw.
 
 	transferNetBalance := transferNetBalance - aTransferWithdraw value.! !
 
-!TransferNet methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 19:56:37'!
+!TransferNet methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 22:10:14'!
 visitWithdraw: aWithdraw.
 
-	transferNetBalance := transferNetBalance + 0.	! !
+	transferNetBalance := transferNetBalance.	! !
 
 
 !classDefinition: #Transfer category: 'ServiciosFinancieros-Solucion'!
