@@ -36,10 +36,10 @@ test03BalanceOfPortfolioIsCalculatedRecursivelyOnPortfolios
 	
 	self assert: (composedPortfolioAccount balance + simplePortfolio balance) equals: composedPortofolio balance! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'LL 7/1/2021 03:27:12'!
+!PortfolioTest methodsFor: 'tests' stamp: 'FR 12/2/2021 20:45:55'!
 test04PortfolioWithoutAccountsHasNoRegisteredTransaction
 
-	self deny: (Portfolio new hasRegistered: (Deposit for: 100 * peso))! !
+	self deny: (Portfolio new hasRegistered: (Deposit CreateReportFor: 100 * peso))! !
 
 !PortfolioTest methodsFor: 'tests' stamp: 'LL 7/1/2021 03:27:18'!
 test05PortfolioHasRegisteredItsAccountsTransactions
@@ -275,14 +275,14 @@ test05ReceptiveAccountKnowsRegisteredTransactions
 	self assert: (account hasRegistered: withdraw).
 ! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'LL 7/1/2021 03:12:14'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'FR 12/2/2021 20:45:55'!
 test06ReceptiveAccountDoNotKnowNotRegisteredTransactions
 
 	| account deposit withdraw |
 	
 	account := ReceptiveAccount new.
-	deposit :=  Deposit for: 100 * peso.
-	withdraw := Withdraw for: 50 * peso.
+	deposit :=  Deposit CreateReportFor: 100 * peso.
+	withdraw := Withdraw CreateReportFor: 50 * peso.
 		
 	self deny: (account hasRegistered: deposit).
 	self deny: (account hasRegistered: withdraw).
@@ -390,7 +390,7 @@ test06UnTransferNetDeUnaCuentaSinTransaccionesDaBalance0
 	
 	self assert: NetTransfer equals: 'Neto de transferencias = 0 pesos'! !
 
-!ReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/1/2021 22:03:35'!
+!ReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:22:38'!
 test07LosTransferNetDeDosCuentasConUnaTransaccionSonCorrectos
 
 	| NetTransfer1 NetTransfer2 |
@@ -400,17 +400,19 @@ test07LosTransferNetDeDosCuentasConUnaTransaccionSonCorrectos
 	NetTransfer1:= TransferNet createFor: account1.
 	NetTransfer2:= TransferNet createFor: account2.
 	
+	
 	self assert: NetTransfer1 equals: 'Neto de transferencias = -100 pesos'.
 	self assert: NetTransfer2 equals: 'Neto de transferencias = 100 pesos'.! !
 
-!ReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/1/2021 22:04:32'!
-test08LosTransferNetDeDosCuentasVariasTransaccionesSonCorrectos
+!ReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:22:51'!
+test08LosTransferNetDeDosCuentasConVariasTransaccionesSonCorrectos
 
 	| NetTransfer1 NetTransfer2 |
 	
 	Transfer amount: 100*peso from: account1  to: account2.  
 	Transfer amount: 100*peso from: account2  to: account1. 
-	Transfer amount: 100*peso from: account1  to: account2. 
+	Transfer amount: 100*peso from: account1  to: account2.
+	Deposit register: 100*peso on: account1.
 	
 	NetTransfer1:= TransferNet createFor: account1.
 	NetTransfer2:= TransferNet createFor: account2.
@@ -774,9 +776,15 @@ affectBalance: aBalance
 	self subclassResponsibility ! !
 
 
-!AccountTransaction methodsFor: 'as yet unclassified' stamp: 'FR 12/1/2021 22:16:37'!
-transactionDetail
-	^self subclassResponsibility ! !
+!AccountTransaction methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:30:28'!
+affectBalanceForNetTransfer: anAccountTransferNet
+
+	self subclassResponsibility ! !
+
+!AccountTransaction methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:29:18'!
+transactionDetailForSummary: anAccountSummary
+
+	self subclassResponsibility ! !
 
 
 !classDefinition: #Deposit category: 'ServiciosFinancieros-Solucion'!
@@ -798,15 +806,21 @@ value
 	^ value! !
 
 
-!Deposit methodsFor: 'balance' stamp: 'HAW 5/25/2019 11:25:02'!
+!Deposit methodsFor: 'balance' stamp: 'FR 12/2/2021 20:51:52'!
 affectBalance: aBalance
 
-	^aBalance + value ! !
+	^aBalance + value! !
 
 
-!Deposit methodsFor: 'as yet unclassified' stamp: 'FR 12/1/2021 22:16:37'!
-transactionDetail
-	^'Depósito por ', self value asString, ' '! !
+!Deposit methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:29:12'!
+affectBalanceForNetTransfer: anAccountTransactionNet
+
+	anAccountTransactionNet depositBalanceChange: self.! !
+
+!Deposit methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:28:53'!
+transactionDetailForSummary: anAccountSummary
+
+	anAccountSummary addDepositDetail: self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -814,18 +828,18 @@ transactionDetail
 Deposit class
 	instanceVariableNames: ''!
 
-!Deposit class methodsFor: 'instance creation' stamp: 'HernanWilkinson 7/13/2011 18:38'!
-for: aValue
+!Deposit class methodsFor: 'instance creation' stamp: 'FR 12/2/2021 20:45:55'!
+CreateReportFor: aValue
 
 	^ self new initializeFor: aValue ! !
 
 
-!Deposit class methodsFor: 'as yet unclassified' stamp: 'LL 7/8/2021 21:45:00'!
+!Deposit class methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 20:45:55'!
 register: aValue on: account
 
 	| transaction |
 	
-	transaction := self for: aValue.
+	transaction := self CreateReportFor: aValue.
 	account register: transaction.
 		
 	^ transaction! !
@@ -850,9 +864,15 @@ initializeWith: aTransfer
 	transfer := aTransfer! !
 
 
-!TransferLeg methodsFor: 'as yet unclassified' stamp: 'FR 12/1/2021 22:16:37'!
-transactionDetail
-	^self subclassResponsibility ! !
+!TransferLeg methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:29:32'!
+affectBalanceForNetTransfer: anAccountTransferNet
+
+	self subclassResponsibility ! !
+
+!TransferLeg methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:29:26'!
+transactionDetailForSummary: anAccountSummary
+
+	self subclassResponsibility ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -878,11 +898,6 @@ TransferLeg subclass: #TransferDepositLeg
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!TransferDepositLeg methodsFor: 'accessing' stamp: 'FR 12/1/2021 22:16:37'!
-transactionDetail
-	
-	^'Entrada por transferencia de ', self value asString, ' '! !
-
 !TransferDepositLeg methodsFor: 'accessing' stamp: 'LL 9/20/2020 22:26:10'!
 withdrawLeg
 
@@ -893,6 +908,17 @@ withdrawLeg
 affectBalance: aBalance
 
 	^aBalance + self value! !
+
+
+!TransferDepositLeg methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:31:08'!
+affectBalanceForNetTransfer: anAccountTransferNet
+	
+	anAccountTransferNet transferDepositBalanceChange: self.! !
+
+!TransferDepositLeg methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:06:47'!
+transactionDetailForSummary: anAccountSummary
+
+	anAccountSummary addTransferDepositDetail: self.! !
 
 
 !classDefinition: #TransferWithdrawLeg category: 'ServiciosFinancieros-Solucion'!
@@ -914,9 +940,15 @@ affectBalance: aBalance
 	^aBalance - self value! !
 
 
-!TransferWithdrawLeg methodsFor: 'as yet unclassified' stamp: 'FR 12/1/2021 22:16:37'!
-transactionDetail
-	^'Salida por transferencia de ', self value asString, ' '! !
+!TransferWithdrawLeg methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:32:21'!
+affectBalanceForNetTransfer: anAccountTransferNet
+	
+	anAccountTransferNet transferWithdrawBalanceChange: self.! !
+
+!TransferWithdrawLeg methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:07:08'!
+transactionDetailForSummary: anAccountSummary
+
+	anAccountSummary addTransferWithdrawDetail: self.! !
 
 
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Solucion'!
@@ -944,9 +976,15 @@ affectBalance: aBalance
 	^aBalance - value! !
 
 
-!Withdraw methodsFor: 'as yet unclassified' stamp: 'FR 12/1/2021 22:16:37'!
-transactionDetail
-	^'Extracción por ', self value asString, ' '! !
+!Withdraw methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:32:36'!
+affectBalanceForNetTransfer: anAccountTransferNet
+	
+	anAccountTransferNet withdrawBalanceChange: self.! !
+
+!Withdraw methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:07:34'!
+transactionDetailForSummary: anAccountSummary
+
+	anAccountSummary addWithdrawDetail: self! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -954,18 +992,18 @@ transactionDetail
 Withdraw class
 	instanceVariableNames: ''!
 
-!Withdraw class methodsFor: 'instance creation' stamp: 'HernanWilkinson 7/13/2011 18:33'!
-for: aValue
+!Withdraw class methodsFor: 'instance creation' stamp: 'FR 12/2/2021 20:45:55'!
+CreateReportFor: aValue
 
 	^ self new initializeFor: aValue ! !
 
 
-!Withdraw class methodsFor: 'as yet unclassified' stamp: 'LL 7/8/2021 21:45:05'!
+!Withdraw class methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 20:45:55'!
 register: aValue on: account
 
 	| transaction |
 	
-	transaction := self for: aValue.
+	transaction := self CreateReportFor: aValue.
 	account register: transaction.
 		
 	^ transaction! !
@@ -978,8 +1016,8 @@ Object subclass: #Reports
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!Reports methodsFor: 'as yet unclassified' stamp: 'FR 12/1/2021 21:34:08'!
-for: anAccount
+!Reports methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 20:45:55'!
+CreateReportFor: anAccount
 
 	self subclassResponsibility.
 	! !
@@ -990,56 +1028,87 @@ for: anAccount
 Reports class
 	instanceVariableNames: ''!
 
-!Reports class methodsFor: 'xxx' stamp: 'FR 12/1/2021 21:41:52'!
+!Reports class methodsFor: 'xxx' stamp: 'FR 12/2/2021 20:45:55'!
 createFor: anAccount 
 	
-	^self new for: anAccount! !
+	^self new CreateReportFor: anAccount! !
 
 
 !classDefinition: #AccountSummary category: 'ServiciosFinancieros-Solucion'!
 Reports subclass: #AccountSummary
-	instanceVariableNames: 'transactions'
+	instanceVariableNames: 'finalReport'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'FR 12/1/2021 22:17:23'!
-for: anAccount
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:13:14'!
+CreateReportFor: anAccount
 
-	| result balanceAsString |
-	
-	result := ''.
+	finalReport := ''.
 
 	anAccount transactions do: 
 	[:transaction | 
-	result := result, transaction transactionDetail	].
+	transaction transactionDetailForSummary: self].
 	
-	balanceAsString := anAccount balance asString.
+	finalReport := finalReport append: 'Balance = ', anAccount balance asString.
 	
-	result := result append: 'Balance = ', balanceAsString.
+	^finalReport.! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:12:17'!
+addDepositDetail: aDeposit
 	
-	^result.! !
+	finalReport := finalReport, 'Depósito por ', aDeposit value asString, ' '! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:12:02'!
+addTransferDepositDetail: aTransferDeposit
+
+	finalReport := finalReport , 'Entrada por transferencia de ', aTransferDeposit value asString, ' '! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:12:07'!
+addTransferWithdrawDetail: aTransferWithdraw
+
+	finalReport := finalReport , 'Salida por transferencia de ', aTransferWithdraw value asString, ' '! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:12:13'!
+addWithdrawDetail: aWithdraw
+	
+	finalReport := finalReport ,'Extracción por ', aWithdraw value asString, ' '! !
 
 
 !classDefinition: #TransferNet category: 'ServiciosFinancieros-Solucion'!
 Reports subclass: #TransferNet
-	instanceVariableNames: 'transactions'
+	instanceVariableNames: 'transactions transferNetBalance'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!TransferNet methodsFor: 'as yet unclassified' stamp: 'FR 12/1/2021 22:21:15'!
-for: anAccount
+!TransferNet methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:35:52'!
+CreateReportFor: anAccount
 
-	| transferNetBalance |
 	transferNetBalance := 0*peso.
 
 	anAccount transactions do: 
-	[:transaction | transferNetBalance := transaction affectBalance: transferNetBalance].
+	[:transaction | transaction affectBalanceForNetTransfer: self	].
 	
 	transferNetBalance := 'Neto de transferencias = ', transferNetBalance asString.
 	
 	^transferNetBalance.! !
+
+!TransferNet methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:33:50'!
+depositBalanceChange: aDeposit.! !
+
+!TransferNet methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:36:51'!
+transferDepositBalanceChange: aTransferDeposit.
+
+	transferNetBalance := transferNetBalance + aTransferDeposit value.! !
+
+!TransferNet methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:36:39'!
+transferWithdrawBalanceChange: aTransferWithdraw.
+
+	transferNetBalance := transferNetBalance - aTransferWithdraw value.! !
+
+!TransferNet methodsFor: 'as yet unclassified' stamp: 'FR 12/2/2021 21:33:33'!
+withdrawBalanceChange: aWithdraw.! !
 
 
 !classDefinition: #Transfer category: 'ServiciosFinancieros-Solucion'!
