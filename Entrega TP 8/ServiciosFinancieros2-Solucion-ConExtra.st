@@ -1,11 +1,11 @@
 !classDefinition: #EspecialReportsTest category: 'ServiciosFinancieros-Solucion'!
 TestCase subclass: #EspecialReportsTest
-	instanceVariableNames: 'myAccount childrenPortfolio johnsAccount angiesAccount familyPortfolio saltoDeLinea'
+	instanceVariableNames: 'myAccount childrenPortfolio johnsAccount angiesAccount familyPortfolio saltoDeLinea account account2 portfolio1'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 22:28:53'!
+!EspecialReportsTest methodsFor: 'setUp' stamp: 'FR 12/5/2021 20:20:03'!
 setUp
 	
 	johnsAccount := ReceptiveAccount named: 'Cuenta de Juan'. 
@@ -14,21 +14,26 @@ setUp
 	myAccount := ReceptiveAccount named: 'Cuenta mia'. 
 	familyPortfolio := Portfolio named: 'Portfolio de la familia' with: myAccount with: childrenPortfolio.
 	
+	account:= ReceptiveAccount named: 'unaCuenta'.
+	account2:= ReceptiveAccount named: 'otraCuenta'.
+	portfolio1:= Portfolio named: 'otroPortfolio' with: account.
+	
 	saltoDeLinea := (String with: Character cr).
 	! !
 
-!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 21:46:52'!
+
+!EspecialReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 21:46:52'!
 test01UnaReceptiveAccountSePuedeCrearConNombre
 
 	self assert: (myAccount accountName) equals: 'Cuenta mia'! !
 
-!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 21:46:14'!
+!EspecialReportsTest methodsFor: 'testing' stamp: 'FR 12/4/2021 21:46:14'!
 test02UnPortfolioSePuedeCrearConUnNombre
 
 	self assert: (childrenPortfolio accountName) equals: 'Portfolio de hijos'! !
 
-!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 22:52:23'!
-test03
+!EspecialReportsTest methodsFor: 'testing' stamp: 'FR 12/5/2021 20:14:25'!
+test03UnPortfolioTreePrinterSeCreaCorrectamenteConUnPortfolioVacio
 	
 	| portfolioVacio |
 	
@@ -36,8 +41,8 @@ test03
 	
 	self assert: (PortfolioTreePrinter createReportFor: portfolioVacio) equals: portfolioVacio accountName, saltoDeLinea! !
 
-!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 00:20:51'!
-test04
+!EspecialReportsTest methodsFor: 'testing' stamp: 'FR 12/5/2021 20:14:57'!
+test04UnPortfolioTreePrinterSeCreaCorrectamenteConUnPortfolioConUnaCuenta
 	
 	| portfolioConUnaCuenta |
 	
@@ -47,16 +52,16 @@ test04
 	portfolioConUnaCuenta accountName , saltoDeLinea,
 	'	',angiesAccount accountName,saltoDeLinea.! !
 
-!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 23:03:23'!
-test05
+!EspecialReportsTest methodsFor: 'testing' stamp: 'FR 12/5/2021 20:15:24'!
+test05UnPortfolioTreePrinterSeCreaCorrectamenteConUnPortfolioConVariasCuentas
 	
 	self assert: (PortfolioTreePrinter createReportFor: childrenPortfolio) equals: 
 	childrenPortfolio accountName, saltoDeLinea,
 	'	',johnsAccount accountName, saltoDeLinea,
 	'	',angiesAccount accountName, saltoDeLinea.! !
 
-!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 00:21:41'!
-test06
+!EspecialReportsTest methodsFor: 'testing' stamp: 'FR 12/5/2021 20:15:39'!
+test06UnPortfolioTreePrinterSeCreaCorrectamenteConUnPortfolioConUnaCuentaYOtrosPortfolios
 
 	self assert: (PortfolioTreePrinter createReportFor: familyPortfolio) equals:
 	familyPortfolio accountName, saltoDeLinea,
@@ -65,24 +70,72 @@ test06
 	'	','	',johnsAccount accountName, saltoDeLinea,
 	'	','	',angiesAccount accountName, saltoDeLinea.! !
 
-!EspecialReportsTest methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 00:22:29'!
-test07
-	
-	| account portfolio1 |
-	
-	account:= ReceptiveAccount named: 'chau'.
-	
-	portfolio1:= Portfolio named: 'hola' with: account.
+!EspecialReportsTest methodsFor: 'testing' stamp: 'FR 12/5/2021 20:20:20'!
+test07UnPortfolioTreePrinterSeCreaCorrectamenteConUnPortfolioConVariasCuentasYPortfoliosConOtrosPortfolios
 	
 	childrenPortfolio add: portfolio1.
+	familyPortfolio add: account2.
 	
-	self assert: (PortfolioTreePrinter createReportFor: familyPortfolio) equals: familyPortfolio accountName, saltoDeLinea,
+	self assert: (PortfolioTreePrinter createReportFor: familyPortfolio) equals: 
+	familyPortfolio accountName, saltoDeLinea,
 	'	', myAccount accountName , saltoDeLinea, 
 	'	', childrenPortfolio accountName , saltoDeLinea, 
 	'	','	',johnsAccount accountName, saltoDeLinea,
 	'	','	',angiesAccount accountName, saltoDeLinea,
 	'	','	',portfolio1 accountName, saltoDeLinea,
-	'	','	','	',account accountName, saltoDeLinea.! !
+	'	','	','	',account accountName, saltoDeLinea,
+	'	', account2 accountName , saltoDeLinea.! !
+
+!EspecialReportsTest methodsFor: 'testing' stamp: 'FR 12/5/2021 20:17:13'!
+test08UnPortfolioDetailedTreePrinterSeCreaCorrectamenteConUnPortfolioConUnaCuenta
+	
+	| portfolioConUnaCuenta |
+	
+	portfolioConUnaCuenta := Portfolio named: 'Portfolio con una cuenta' with: angiesAccount.
+	
+	Deposit register: 100*peso on: angiesAccount.
+	
+	self assert: (PortfolioTreePrinter createReportFor: portfolioConUnaCuenta) equals: 
+	portfolioConUnaCuenta accountName , saltoDeLinea,
+	'	',angiesAccount accountName,saltoDeLinea.! !
+
+!EspecialReportsTest methodsFor: 'testing' stamp: 'FR 12/5/2021 20:20:28'!
+test09UnPortfolioDetailedTreePrinterSeCreaCorrectamenteConUnPortfolioConVariasCuentasYPortfoliosConOtrosPortfolios
+	
+	childrenPortfolio add: portfolio1.
+	familyPortfolio add: account2.
+	
+	Deposit register: 200*peso on: angiesAccount.
+	Deposit register: 100*peso on: johnsAccount.
+	Deposit register: 300*peso on: myAccount.
+	Deposit register: 100*peso on: account.
+	Withdraw register:1000*peso on: account2.
+	Withdraw register: 150*peso on: myAccount.
+	Withdraw register: 50*peso on: johnsAccount.
+	Withdraw register: 300*peso on: angiesAccount.
+
+	self assert: (PortfolioDetailedTreePrinter createReportFor: familyPortfolio) equals:'Portfolio de la familia',saltoDeLinea,
+	'	Cuenta mia',saltoDeLinea,
+	'		Depósito por 300 pesos',saltoDeLinea,
+	'		Extracción por 150 pesos',saltoDeLinea,
+	'		Balance = 150 pesos',saltoDeLinea,
+	'	Portfolio de hijos',saltoDeLinea,
+	'		Cuenta de Juan',saltoDeLinea,
+	'			Depósito por 100 pesos',saltoDeLinea,
+	'			Extracción por 50 pesos',saltoDeLinea,
+	'			Balance = 50 pesos',saltoDeLinea,
+	'		Cuenta de Angeles',saltoDeLinea,
+	'			Depósito por 200 pesos',saltoDeLinea,
+	'			Extracción por 300 pesos',saltoDeLinea,
+	'			Balance = -100 pesos',saltoDeLinea,
+	'		otroPortfolio',saltoDeLinea,
+	'			unaCuenta',saltoDeLinea,
+	'				Depósito por 100 pesos',saltoDeLinea,
+	'				Balance = 100 pesos',saltoDeLinea,
+	'	otraCuenta',saltoDeLinea,
+	'				Extracción por 1000 pesos',saltoDeLinea,
+	'				Balance = -1000 pesos',saltoDeLinea,
+	'	Balance = -800 pesos'.! !
 
 
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Solucion'!
@@ -1255,16 +1308,13 @@ Reports subclass: #AccountSummary
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 23:09:14'!
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 16:54:46'!
 createReport
 
 	account transactions do: 
-	[:transaction | 
-	transaction accept: self].
+	[:transaction | 	transaction accept: self].
 	
-	finalReport := finalReport append: 'Balance = ', account balance asString.
-	
-	^finalReport.! !
+	^finalReport append: 'Balance = ', account balance asString.! !
 
 !AccountSummary methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 20:31:54'!
 initializeFor: anAccount
@@ -1293,47 +1343,144 @@ visitWithdraw: aWithdraw
 	finalReport := finalReport ,'Extracción por ', aWithdraw value asString, (String with: Character cr)! !
 
 
-!classDefinition: #PortfolioTreePrinter category: 'ServiciosFinancieros-Solucion'!
-Reports subclass: #PortfolioTreePrinter
-	instanceVariableNames: 'portfolio portfolioTree indetatationCounter'
+!classDefinition: #PortfolioPrinter category: 'ServiciosFinancieros-Solucion'!
+Reports subclass: #PortfolioPrinter
+	instanceVariableNames: 'portfolio indentationCounter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion'!
 
-!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 23:47:40'!
+!PortfolioPrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 20:28:18'!
 createReport
-	
-	portfolioTree := portfolioTree, portfolio accountName, (String with: Character cr).
- 	portfolio accounts do: [:account | portfolioTree := portfolioTree,'	', (account accept: self)].
-	^portfolioTree! !
 
-!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 00:14:14'!
-createReportFor: anAccount WithIndent: anIndentCounter
+	^self subclassResponsibility! !
 
-	| indentation newPortfolioTree |
+!PortfolioPrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 20:29:10'!
+createReportWithIndentFor: aPortfolio
+
+	| newPortfolioTree indentation |
 	
-	indetatationCounter := anIndentCounter + 1.
-	
-	indentation:= ''.
 	newPortfolioTree :=''.
+	indentation := self getNewIndentation.
 	
-	1 to: indetatationCounter do: [:unused |indentation := indentation, '	'].
-	
-	newPortfolioTree := newPortfolioTree,anAccount accountName, (String with: Character cr).
- 	anAccount accounts do: [:account | newPortfolioTree := newPortfolioTree, indentation,'	', (account accept: self)].
+	newPortfolioTree := newPortfolioTree,aPortfolio accountName, (String with: Character cr).
+ 	aPortfolio accounts do: [:account | newPortfolioTree := newPortfolioTree, indentation, (account accept: self)].
 	^newPortfolioTree! !
 
-!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 00:06:58'!
+!PortfolioPrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 20:27:43'!
+getNewIndentation
+	
+	| indentation |
+	
+	indentation:=''.
+	indentationCounter := indentationCounter + 1.
+	
+	1 to: indentationCounter do: [:unused | indentation := indentation, '	'].
+	
+	^indentation! !
+
+!PortfolioPrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 20:27:19'!
 initializeFor: aPortfolio
 	
-	indetatationCounter:= 0.
+	self subclassResponsibility ! !
+
+!PortfolioPrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 20:27:04'!
+visitPortfolio: aPorfolio
+
+	^self subclassResponsibility ! !
+
+!PortfolioPrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 20:26:48'!
+visitReceptiveAccount: aReceptiveAccount
+
+	^self subclassResponsibility! !
+
+
+!classDefinition: #PortfolioDetailedTreePrinter category: 'ServiciosFinancieros-Solucion'!
+PortfolioPrinter subclass: #PortfolioDetailedTreePrinter
+	instanceVariableNames: 'portfolioDetailedTree'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Solucion'!
+
+!PortfolioDetailedTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 17:05:57'!
+createIndentedSummaryFor: aReceptiveAccount
+
+	| indentation indentedSummary |
+	
+	indentedSummary := ''.
+	
+	indentation:= self getNewIndentation.
+	
+	(AccountSummary createReportFor: aReceptiveAccount) linesDo: [:line | indentedSummary := indentedSummary, indentation, line, (String with: Character cr)].
+	
+	self decreaseIndentation.
+	
+	^indentedSummary! !
+
+!PortfolioDetailedTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 20:25:11'!
+createReport
+	
+	| indent |
+	indent := self getNewIndentation.
+	
+	portfolioDetailedTree := portfolioDetailedTree, portfolio accountName, (String with: Character cr).
+ 	portfolio accounts do: [:account | portfolioDetailedTree := portfolioDetailedTree, indent, (account accept: self)].
+	^portfolioDetailedTree,'	','Balance = ', portfolio balance asString.! !
+
+!PortfolioDetailedTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 17:05:16'!
+decreaseIndentation
+
+	indentationCounter:= indentationCounter - 1.! !
+
+!PortfolioDetailedTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 20:25:12'!
+initializeFor: aPortfolio
+	
+	indentationCounter:= 0.
+	portfolio := aPortfolio.
+	portfolioDetailedTree := ''.! !
+
+!PortfolioDetailedTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 16:08:34'!
+visitPortfolio: aPorfolio
+
+	^self createReportWithIndentFor: aPorfolio.! !
+
+!PortfolioDetailedTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 17:03:56'!
+visitReceptiveAccount: aReceptiveAccount
+
+	^(aReceptiveAccount accountName, (String with: Character cr)), (self createIndentedSummaryFor: aReceptiveAccount).! !
+
+
+!classDefinition: #PortfolioTreePrinter category: 'ServiciosFinancieros-Solucion'!
+PortfolioPrinter subclass: #PortfolioTreePrinter
+	instanceVariableNames: 'portfolioTree'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Solucion'!
+
+!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 20:30:44'!
+createReport
+	
+	| indent |
+	
+	portfolioTree := portfolioTree, portfolio accountName, (String with: Character cr).
+	
+	indent:= self getNewIndentation.
+	
+ 	portfolio accounts do: [:account | portfolioTree := portfolioTree, indent, (account accept: self)].
+	
+	^portfolioTree! !
+
+!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 17:00:38'!
+initializeFor: aPortfolio
+	
+	indentationCounter:= 0.
 	portfolio := aPortfolio.
 	portfolioTree := ''.! !
 
-!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 00:09:36'!
+!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/5/2021 16:47:06'!
 visitPortfolio: aPorfolio
 
-	^self createReportFor: aPorfolio WithIndent: indetatationCounter.! !
+	^self createReportWithIndentFor: aPorfolio.! !
 
 !PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'FR 12/4/2021 23:46:23'!
 visitReceptiveAccount: aReceptiveAccount
