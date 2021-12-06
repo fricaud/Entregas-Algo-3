@@ -86,7 +86,7 @@ test07UnPortfolioTreePrinterSeCreaCorrectamenteConUnPortfolioConVariasCuentasYPo
 	'	','	','	',account accountName, saltoDeLinea,
 	'	', account2 accountName , saltoDeLinea.! !
 
-!EspecialReportsTest methodsFor: 'testing' stamp: 'FR 12/5/2021 20:17:13'!
+!EspecialReportsTest methodsFor: 'testing' stamp: 'FR 12/6/2021 10:26:18'!
 test08UnPortfolioDetailedTreePrinterSeCreaCorrectamenteConUnPortfolioConUnaCuenta
 	
 	| portfolioConUnaCuenta |
@@ -95,9 +95,12 @@ test08UnPortfolioDetailedTreePrinterSeCreaCorrectamenteConUnPortfolioConUnaCuent
 	
 	Deposit register: 100*peso on: angiesAccount.
 	
-	self assert: (PortfolioTreePrinter createReportFor: portfolioConUnaCuenta) equals: 
-	portfolioConUnaCuenta accountName , saltoDeLinea,
-	'	',angiesAccount accountName,saltoDeLinea.! !
+	self assert: (PortfolioDetailedTreePrinter createReportFor: portfolioConUnaCuenta) equals: 
+	portfolioConUnaCuenta accountName, saltoDeLinea,
+	'	',angiesAccount accountName, saltoDeLinea,
+	'	','	','Depósito por 100 pesos', saltoDeLinea,
+	'	','	','Balance = 100 pesos', saltoDeLinea,
+	'	','Balance = 100 pesos'.! !
 
 !EspecialReportsTest methodsFor: 'testing' stamp: 'FR 12/5/2021 20:20:28'!
 test09UnPortfolioDetailedTreePrinterSeCreaCorrectamenteConUnPortfolioConVariasCuentasYPortfoliosConOtrosPortfolios
